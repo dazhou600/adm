@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8" />
+<title>表单</title>
+
+<link href="css/bootstrap.min.css" rel="stylesheet" />
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<!--jquery.validate-->
+<script type="text/javascript" src="js/jquery.validate.min.js"></script>
+<script type="text/javascript" src="js/message.js"></script>
+<style type="text/css">
+body {
+	background: url(imgs/bg.jpg) no-repeat;
+	background-size: cover;
+	font-size: 16px;
+}
+
+.form {
+	background: rgba(255, 255, 255, 0.2);
+}
+
+#login_form {
+	display: block;
+}
+
+#register_form {
+	display: none;
+}
+
+.glyph {
+	display: inline-block;
+	top: 31px;
+	left: 5px;
+	position: relative;
+	color: #aaa;
+}
+
+input[type="text"], input[type="password"] {
+	padding-left: 30px;
+}
+
+.checkbox {
+	padding-left: 21px;
+}
+</style>
+</head>
+<body>
+	<div class="container">
+		<div class="row" style="margin: 40px 0px 0px 0px;">
+			<div class="col-xs-12 col-sm-4 col-sm-offset-4 form">
+				<div class="col-xs-10 col-sm-10 col-sm-offset-1">
+					<div>
+						<span style="color: red;" th:if="${param.error}"
+							th:text="${session.SPRING_SECURITY_LAST_EXCEPTION.message}">用户名或密码错误！
+						</span>
+					</div>
+
+					<form class="form-horizontal" name="f" id="login_form"
+						th:action="@{/login}" method="POST">
+						<h3 class="form-title">请输入帐号密码</h3>
+						<div class="form-group">
+							<span class="glyph glyphicon glyphicon-user"></span> <input
+								class="form-control required" type="text" placeholder="用户名"
+								name="username" autofocus="autofocus" maxlength="20" />
+						</div>
+						<div class="form-group">
+							<span class="glyph glyphicon glyphicon-lock"></span> <input
+								class="form-control required" type="password" placeholder="密码"
+								name="password" maxlength="16" />
+						</div>
+						<div class="form-group">
+							<img id="img" style="margin-top:20px;" src="/yzm.png" onclick="change()" />
+							<span style="color: red;">点击图片更换</span>
+						</div>
+						<div class="form-group">
+							<span onclick="change()" class="glyph glyphicon glyphicon-refresh"></span><input class="form-control required" type="text"
+								placeholder="验证码" name="yzm" maxlength="16" />
+						</div>
+						<div class="form-group">
+							<label class="checkbox"> <input type="checkbox"
+								name="remember" value="1" /> 记住我
+							</label>
+							<hr />
+							<a href="javascript:;" id="register_btn"
+								class="btn btn-info pull-left">注册帐号</a>
+						</div>
+						<div class="form-group">
+							<input type="submit" class="btn btn-success pull-right"
+								value="登录 " />
+						</div>
+					</form>
+					<form class="form-horizontal" id="register_form"
+						th:action="@{/register}" method="post">
+						<h3 class="form-title">注册帐号</h3>
+						<div class="form-group">
+							<span class="glyph glyphicon glyphicon-user"></span> <input
+								class="form-control required" type="text" placeholder="姓名"
+								name="username" autofocus="autofocus" />
+						</div>
+						<div class="form-group">
+							<span class="glyph glyphicon glyphicon-lock"></span> <input
+								class="form-control required" type="password" placeholder="密码"
+								id="register_password" name="password" />
+						</div>
+						<div class="form-group">
+							<span class="glyph glyphicon glyphicon-repeat"></span> <input
+								class="form-control required" type="password" placeholder="重复密码"
+								name="rpassword" />
+						</div>
+						<div class="form-group">
+							<span class="glyph glyphicon glyphicon-envelope"></span> <input
+								class="form-control eamil" type="text" placeholder="Email"
+								name="email" />
+						</div>
+						<div class="form-group">
+							<input type="submit" class="btn btn-success pull-right"
+								value="注册 " /> <a href="javascript:;"
+								class="btn btn-info pull-left" id="back_btn">帐号登录 </a>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<!--row结束-->
+	</div>
+</body>
+<script type="text/javascript">
+	function change() {
+		document.getElementById("img").src = "/yzm.pngs?id="
+				+ new Date().getTime();
+	}
+</script>
+</html>
