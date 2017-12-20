@@ -1,0 +1,9 @@
+***********http://localhost:8080/login******************
+!!!!!!!!!!!null //sission 失效 没有验证码！ 验证码为空 可以登录
+***************/admin**************
+2017-12-14 13:02:54.017  WARN 4598 
+————————————————————————————————————————
+2017-12-14 13:23:26.491 ERROR 4598 --- [nio-8080-exec-6] org.thymeleaf.TemplateEngine 
+: [THYMELEAF][http-nio-8080-exec-6] Exception processing template "login_reg": Exception evaluating SpringEL 
+expression: "session.SPRING_SECURITY_LAST_EXCEPTION.message" (login_reg:57)
+不能跳转期望页面 

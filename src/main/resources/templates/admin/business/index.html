@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<!--  头部 -->
+<head th:replace="headlink"></head>
+
+<!-- 脚本 -->
+<div th:replace="scriptlink"></div>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<div class="wrapper">
+
+		<!-- 头部 导航 -->
+		<div th:replace="header"></div>
+
+		<!--侧边栏-->
+		<aside th:replace="sidebar"></aside>
+
+		<!-- 内容 -->
+		<div th:fragment="contente" class="content-wrapper">
+		<div th:include="/admin/business/home"></div>
+		</div>
+		<!-- 版权信息 -->
+		<footer th:replace="footer"></footer>
+		
+	</div>
+	<!-- ./wrapper -->
+
+</body>
+</html>

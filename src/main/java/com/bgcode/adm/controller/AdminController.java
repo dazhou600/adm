@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.bgcode.adm.dao.UserRepository;
@@ -19,6 +20,17 @@ import com.bgcode.adm.domain.Duty;
 public class AdminController {
 	@Autowired
 	private UserRepository userRepo;
+	
+	@RequestMapping(value="/admin/home")
+	public  String getHome(){
+		return "/admin/business/home" ;
+	}
+	
+	
+	@RequestMapping(value="/admin/email")
+	public  String getEmail(){
+		return "/admin/business/email" ;
+	}
 	
 	@RequestMapping(value="/admin",method=RequestMethod.GET)
 	public ModelAndView admin() {
@@ -43,9 +55,9 @@ public class AdminController {
 //	}
 	
 	@RequestMapping(value="/index",method=RequestMethod.GET)
-	public ModelAndView findUserByNamePasswd() {
+	public ModelAndView home() {
 		
-		ModelAndView modelAndView = new ModelAndView("admin/index");
+		ModelAndView modelAndView = new ModelAndView("/admin/business/index");
 		return modelAndView;
 	}
 	

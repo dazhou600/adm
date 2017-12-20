@@ -20,6 +20,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator{
 			Object permission) {
 		logger.warn("Denying 咏 " + authentication.getName() + " permission '"
 				+ permission + "' on object " + target);
+		
 		return true;
 	}
 

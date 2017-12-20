@@ -40,6 +40,8 @@ public class CaptcatFilter implements Filter {
 					failureHandler.onAuthenticationFailure(req, rsp, exception);
 					return;
 				}
+			}else{
+				throw new CaptcatException("会话超时请重新获取验证码！");
 			}
 		}
 		chain.doFilter(request, response);
