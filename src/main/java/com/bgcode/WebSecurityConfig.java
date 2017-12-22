@@ -40,7 +40,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests().antMatchers("/admin").hasAnyRole("WZADM").anyRequest().permitAll()
 				// .anyRequest().authenticated().withObjectPostProcessor(getExpressionHandler())
-				.and().formLogin().loginPage("/login").defaultSuccessUrl("/admin/business/index").and().addFilterBefore(
+				.and().formLogin().loginPage("/login").defaultSuccessUrl("/index").and().addFilterBefore(
 						new CaptcatFilter("/login", "/login?error"), UsernamePasswordAuthenticationFilter.class);
 		// http.authorizeRequests().anyRequest().authenticated().expressionHandler(webSecurityExpressionHandler());
 	}
