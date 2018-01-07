@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <!--  头部 -->
-<head th:replace="headlink"></head>
+<head th:replace="/admin/headlink"></head>
 
 <body class="hold-transition skin-blue sidebar-mini">
 	<div class="wrapper">
 
 		<!-- 头部 导航 -->
-		<div th:replace="header"></div>
+		<div th:replace="/admin/header"></div>
 
 		<!--侧边栏-->
-		<aside th:replace="sidebar"></aside>
+		<aside th:replace="/admin/sidebar"></aside>
 
 		<!-- 内容 -->
 		<div class="content-wrapper">
@@ -77,7 +77,7 @@
 		</div>
 
 		<!-- 版权信息 -->
-		<footer th:replace="footer"></footer>
+		<footer th:replace="/admin/footer"></footer>
 
 		<!-- Control Sidebar -->
 		<aside class="control-sidebar control-sidebar-dark">
@@ -154,6 +154,6 @@
 	</div>
 	<!-- ./wrapper -->
 	<!-- 脚本 -->
-	<div th:replace="scriptlink"></div>	
+	<div th:replace="/admin/scriptlink"></div>	
 </body>
 </html>

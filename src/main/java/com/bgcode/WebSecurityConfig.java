@@ -24,6 +24,7 @@ import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 import org.thymeleaf.templateresolver.TemplateResolver;
 
+import com.bgcode.authenticationSuccessHandler.MultipleAuthenticationSuccessHandler;
 import com.bgcode.express.CustomPermissionEvaluator;
 import com.bgcode.filter.CaptcatFilter;
 
@@ -38,10 +39,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().antMatchers("/admin").hasAnyRole("WZADM").anyRequest().permitAll()
+		http.authorizeRequests().antMatchers("/admin/**").hasAnyRole("WZGL","QXYHGL","XTSZ","FWQJK")
+		.antMatchers("/sys/**").hasAnyRole("QXYHGL","XTSZ","FWQJK")
+		.anyRequest().permitAll()
 				// .anyRequest().authenticated().withObjectPostProcessor(getExpressionHandler())
-				.and().formLogin().loginPage("/login").defaultSuccessUrl("/index").and().addFilterBefore(
-						new CaptcatFilter("/login", "/login?error"), UsernamePasswordAuthenticationFilter.class);
+				.and().formLogin().loginPage("/login").defaultSuccessUrl("/admin/index");
+				//.and().addFilterBefore(new CaptcatFilter("/login", "/login?error"), UsernamePasswordAuthenticationFilter.class);
 		// http.authorizeRequests().anyRequest().authenticated().expressionHandler(webSecurityExpressionHandler());
 	}
 
@@ -49,9 +52,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	public void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.jdbcAuthentication().dataSource(dataSource)
 				.usersByUsernameQuery("SELECT u_name , password , isactive FROM product.duty where u_name=? ")
-				.authoritiesByUsernameQuery("SELECT distinct u.u_name uname, m.permission permission "
-						+ "FROM duty u, menu m, role r, role_menu rm, user_role ur "
-						+ "where u.u_name=? and u.u_id=ur.user_id and ur.role_id=r.r_id and r.r_id=rm.role_id and rm.menu_id=m.menu_id")
+.authoritiesByUsernameQuery("SELECT u.u_name, CONCAT_WS(':', m.href, o.operat) p FROM duty u, menu m,user_menu_operation umo,operatiom o WHERE u.u_name =? AND u.u_id = umo.u_id AND umo.menu_id = m.menu_id AND umo.o_id = o.o_id")
+.groupAuthoritiesByUsername("SELECT r_id,r.remarks,r.r_name  FROM product.duty d,product.user_role ur, product.role r where d.u_name=? AND ur.user_id=d.u_id AND r.r_id=ur.role_id ;")
+//				.authoritiesByUsernameQuery("SELECT distinct u.u_name uname, m.permission permission "
+//						+ "FROM duty u, menu m, role r, role_menu rm, user_role ur "
+//						+ "where u.u_name=? and u.u_id=ur.user_id and ur.role_id=r.r_id and r.r_id=rm.role_id and rm.menu_id=m.menu_id")
 //				.groupAuthoritiesByUsername(
 //						"SELECT r.r_id,r.data_operation,r.r_name " + "FROM product.role r,user_role ur ,duty d "
 //								+ "where d.u_name=? and d.u_id=ur.user_id and ur.role_id=r.r_id")
@@ -71,6 +76,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return webSecurityExpressionHandler;
 	}
 
+	//登录跳转
+	@Bean(name = "successHandler")
+	public MultipleAuthenticationSuccessHandler AuthenticationSuccessHandler() {
+		MultipleAuthenticationSuccessHandler successHandler = new MultipleAuthenticationSuccessHandler();
+		return successHandler;
+	}
+	
 	@Bean
 	public SpringTemplateEngine templateEngine(TemplateResolver templateResolver) {
 		SpringTemplateEngine templateEngine = new SpringTemplateEngine();

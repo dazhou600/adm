@@ -30,7 +30,7 @@
 							class="fa fa-angle-left pull-right"></i>
 					</span> </a>
 					<ul class="treeview-menu" style="display: block;">
-						<li><a href="/admin/home"><i class="fa fa-circle-o"></i>主页</a></li>
+						<li><a href="/admin/index"><i class="fa fa-circle-o"></i>主页</a></li>
 						<li><a href="/admin/notice"><i class="fa fa-circle-o"></i>通知</a></li>
 						<li><a href="/admin/dbsx"><i class="fa fa-circle-o"></i>代办事项</a></li>
 						<li><a href="/admin/email"><i class="fa fa-circle-o"></i>邮件</a></li>
@@ -75,30 +75,6 @@
 		</section>
 		<!-- /.sidebar -->
 	</aside>
-	<!-- 脚本 -->
-	<script type="text/javascript">
-		$(function() {
-			//侧边栏跳转到右边content
-			$("ul.treeview-menu>li>a").on(
-					'click',
-					function(event) {
-						// 阻止浏览器默认动作
-						event.preventDefault();
-						// 阻止向上冒泡
-						event.stopPropagation();
-						$(".content-wrapper").load(
-								$(this).attr("href"),
-								null,
-								function(responseTxt, statusTxt, xhr) {
-									if (statusTxt == "success")
-										//alert("外部内容加载成功！");
-										if (statusTxt == "error")
-											alert("Error: " + xhr.status + ": "
-													+ xhr.statusText);
-								});
-
-					});
-		});
-	</script>
+	<!--ajax 脚本 -->
 </body>
 </html>
