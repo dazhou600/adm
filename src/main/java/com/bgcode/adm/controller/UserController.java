@@ -20,6 +20,7 @@ public class UserController {
 	
 	@RequestMapping(value = "/index", method = RequestMethod.GET)
 	public ModelAndView index(HttpServletRequest request) {
+		
 		ModelAndView modelAndView = new ModelAndView("/home");
 		return modelAndView;
 	}

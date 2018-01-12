@@ -43,7 +43,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		.antMatchers("/sys/**").hasAnyRole("QXYHGL","XTSZ","FWQJK")
 		.anyRequest().permitAll()
 				// .anyRequest().authenticated().withObjectPostProcessor(getExpressionHandler())
-				.and().formLogin().loginPage("/login").defaultSuccessUrl("/admin/index");
+				.and().formLogin().loginPage("/login").defaultSuccessUrl("/index");
 				//.and().addFilterBefore(new CaptcatFilter("/login", "/login?error"), UsernamePasswordAuthenticationFilter.class);
 		// http.authorizeRequests().anyRequest().authenticated().expressionHandler(webSecurityExpressionHandler());
 	}

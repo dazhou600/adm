@@ -24,22 +24,22 @@
 			<!-- /.search form -->
 
 			<!-- Sidebar Menu -->
-			<ul class="sidebar-menu" data-widget="tree">
+			<ul class="sidebar-menu" data-widget="tree" sec:authorize="isAuthenticated()">
 				<li class="treeview"><a href="#"><i class="fa fa-users"></i>
 						<span>通知公告</span> <span class="pull-right-container"> <i
 							class="fa fa-angle-left pull-right"></i>
 					</span> </a>
-					<ul class="treeview-menu" style="display: block;">
+					<ul class="treeview-menu" sec:authorize="hasRole('ROLE_GLY')" style="display: block;">
 						<li><a href="/admin/index"><i class="fa fa-circle-o"></i>主页</a></li>
 						<li><a href="/admin/notice"><i class="fa fa-circle-o"></i>通知</a></li>
 						<li><a href="/admin/dbsx"><i class="fa fa-circle-o"></i>代办事项</a></li>
 						<li><a href="/admin/email"><i class="fa fa-circle-o"></i>邮件</a></li>
 					</ul></li>
-				<li class="treeview"><a href="#"><i class="fa fa-link"></i>
+				<li class="treeview"  sec:authorize="hasRole('ROLE_WZGL')"><a href="#"><i class="fa fa-link"></i>
 						<span>文章管理</span> <span class="pull-right-container"> <i
 							class="fa fa-angle-left pull-right"></i>
 					</span> </a>
-					<ul class="treeview-menu">
+					<ul class="treeview-menu" sec:authorize="hasPermission('/admin/Article','read')">
 						<li><a href="/admin/Article">文章列表</a></li>
 					</ul></li>
 				<li class="treeview"><a href="#"><i class="fa fa-users"></i>
