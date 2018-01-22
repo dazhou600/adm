@@ -5,14 +5,18 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 
 import com.bgcode.adm.domain.Menu;
 
 
 @Repository
+//@CacheConfig(cacheNames = "menus")
 public class MenuRepository {
 	private JdbcTemplate jdbcTemplate;
 	
@@ -21,6 +25,17 @@ public class MenuRepository {
 		
 		this.jdbcTemplate= jdbcTemplate ;
 		
+	}
+	//获得菜单位置
+	@Cacheable(value="sort")
+	public int findSortByMenuId(String id){
+		SqlRowSet set = jdbcTemplate.queryForRowSet("SELECT sort FROM menu where menu_id='"+id+"'");
+		if(set.next()){
+		int l = set.getInt("sort");
+		//System.out .println("^^^^^^^^^^^^^^^^"+l);
+		return l;
+		}
+		return 0 ;
 	}
 	
 	public List<Menu> findByUser(String name){

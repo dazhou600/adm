@@ -116,9 +116,9 @@
 								<span sec:authentication="name" class="hidden-xs">54454545</span>
 								<!--  <span  sec:authorize="hasRole('ROLE_WZADM')" >hasRole</span> -->
 								<!--<span  sec:authorize="hasAnyAuthority('sys:role:edit0')" >Authority</span> -->
-								<span  sec:authorize="hasPermission('sys:role:edit0','ddd')" >Authority</span>
+								<!--<span  sec:authorize="hasPermission('sys:role:edit0','ddd')" >Authority</span>-->
 								Roles: <span sec:authentication="principal.authorities[0]">[ROLE_USER, ROLE_ADMIN]</span>
-								            <form th:action="@{/logout}" method="post" style="display:inline; color: red;margin-left: 5px;"><input style="line-height: 6px;" type="submit" value="安全退出"/></form>
+								            <form th:action="@{/logout}" method="post" style="display:inline; color: red;margin-left: 5px;"><input style="line-height: 5px;" type="submit" value="安全退出"/></form>
 						</a>
 						</li>
 					</ul>
