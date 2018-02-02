@@ -18,8 +18,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 import org.thymeleaf.templateresolver.TemplateResolver;
@@ -43,8 +45,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		.antMatchers("/sys/**").hasAnyRole("QXYHGL","XTSZ","FWQJK")
 		.anyRequest().permitAll()
 				// .anyRequest().authenticated().withObjectPostProcessor(getExpressionHandler())
-				.and().formLogin().loginPage("/login").defaultSuccessUrl("/index");
-				//.and().addFilterBefore(new CaptcatFilter("/login", "/login?error"), UsernamePasswordAuthenticationFilter.class);
+				.and().formLogin().loginPage("/login").defaultSuccessUrl("/index").successHandler(AuthenticationSuccessHandler())
+				.and().addFilterBefore(new CaptcatFilter("/login", "/login?error"), UsernamePasswordAuthenticationFilter.class);
 		// http.authorizeRequests().anyRequest().authenticated().expressionHandler(webSecurityExpressionHandler());
 	}
 
@@ -77,9 +79,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	//登录跳转
-	@Bean(name = "successHandler")
-	public MultipleAuthenticationSuccessHandler AuthenticationSuccessHandler() {
-		MultipleAuthenticationSuccessHandler successHandler = new MultipleAuthenticationSuccessHandler();
+	@Bean
+	public AuthenticationSuccessHandler AuthenticationSuccessHandler() {
+		AuthenticationSuccessHandler successHandler = new MultipleAuthenticationSuccessHandler();
 		return successHandler;
 	}
 	

@@ -21,48 +21,21 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-//@Component
+@Component
 public class MultipleAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
-
 	protected final Log logger = LogFactory.getLog(this.getClass());
-
-	private RequestCache requestCache = new HttpSessionRequestCache();
-
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request,
 			HttpServletResponse response, Authentication authentication)
 			throws ServletException, IOException {
-		SavedRequest savedRequest = requestCache.getRequest(request, response);
-
-		if (savedRequest == null) {
-			super.onAuthenticationSuccess(request, response, authentication);
-
-			return;
-		}
-		String targetUrlParameter = getTargetUrlParameter();
-		if (isAlwaysUseDefaultTargetUrl()
-				|| (targetUrlParameter != null && StringUtils.hasText(request
-						.getParameter(targetUrlParameter)))) {
-			requestCache.removeRequest(request, response);
-			super.onAuthenticationSuccess(request, response, authentication);
-
-			return;
-		}
-
-		clearAuthenticationAttributes(request);
-
-		// Use the DefaultSavedRequest URL
-		String targetUrl = savedRequest.getRedirectUrl();
 		Iterator<SimpleGrantedAuthority> it = (Iterator<SimpleGrantedAuthority>) authentication.getAuthorities().iterator();
 		while(it.hasNext()){
-			if("ROLE_BACKEND".equals(it.next().getAuthority())){
-				targetUrl = "/admin/index";
-				System.out.println("**********ROLE_BACKEND***********");
+			if("ROLE_GLY".equals(it.next().getAuthority())){
+				setDefaultTargetUrl( "/admin/index");
 				break ;
 			}
 		}
-		logger.debug("Redirecting to DefaultSavedRequest Url: " + targetUrl);
-		getRedirectStrategy().sendRedirect(request, response, targetUrl);
+		super.onAuthenticationSuccess(request, response, authentication);
 	}
 
 	
