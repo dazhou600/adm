@@ -6,6 +6,8 @@ package com.bgcode.adm.domain;
 import java.util.Date;
 import java.util.Set;
 
+import javax.validation.constraints.NotNull;
+
 import org.hibernate.validator.constraints.Length;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -75,11 +77,12 @@ public class Duty {
 		this.email = email;
 		this.rols = rols;
 	}
-
+	@NotNull
+	@Length(min = 5, max = 16, message = "长度必须介于 5 和 16 之间")
 	public String getId() {
 		return id;
 	}
-
+	@Length(min = 5, max = 16, message = "长度必须介于 5 和 16 之间")
 	public String getName() {
 		return name;
 	}
@@ -95,8 +98,8 @@ public class Duty {
 	public String getPhoto() {
 		return photo;
 	}
-
-	public java.util.Date getLogindate() {
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	public Date getLogindate() {
 		return logindate;
 	}
 
@@ -108,24 +111,24 @@ public class Duty {
 	public String getLoginip() {
 		return loginip;
 	}
-
-	@Length(min = 6, max = 200, message = "密码长度必须介于 6 和 16 之间")
+	@NotNull
+	@Length(min = 6, max = 26, message = "密码长度必须介于 6 和 26 之间")
 	public String getPassword() {
 		return password;
 	}
 
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	public java.util.Date getExpiredate() {
+	public Date getExpiredate() {
 		return expiredate;
 	}
 
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	public java.util.Date getLastupdate() {
+	public Date getLastupdate() {
 		return lastupdate;
 	}
 
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	public java.util.Date getCreatedate() {
+	public Date getCreatedate() {
 		return createdate;
 	}
 

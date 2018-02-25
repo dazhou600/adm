@@ -1,4 +1,4 @@
-package com.bgcode.adm.controller;
+package com.bgcode;
 
 import java.awt.Color;
 

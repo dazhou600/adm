@@ -1,4 +1,4 @@
-package com.bgcode.adm.controller;
+package com.bgcode.customer.conroller;
 
 import java.util.List;
 
@@ -18,17 +18,12 @@ import com.bgcode.adm.domain.Duty;
 @Controller
 public class UserController {
 	
-	@RequestMapping(value = "/index", method = RequestMethod.GET)
-	public ModelAndView index(HttpServletRequest request) {
-		
-		ModelAndView modelAndView = new ModelAndView("/home");
-		return modelAndView;
+	@RequestMapping(value = {"/index","/","/home"}, method = RequestMethod.GET)
+	public String index(HttpServletRequest request) {
+		return "/home1" ;
 	}
 
-	@RequestMapping(value = "/home", method = RequestMethod.GET)
-	public String home(HttpServletRequest request) {
-		return "/home";
-	}
+
 
 
 }

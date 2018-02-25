@@ -29,12 +29,18 @@ public class MultipleAuthenticationSuccessHandler extends SavedRequestAwareAuthe
 			HttpServletResponse response, Authentication authentication)
 			throws ServletException, IOException {
 		Iterator<SimpleGrantedAuthority> it = (Iterator<SimpleGrantedAuthority>) authentication.getAuthorities().iterator();
+		setDefaultTargetUrl( "/index");
 		while(it.hasNext()){
 			if("ROLE_GLY".equals(it.next().getAuthority())){
 				setDefaultTargetUrl( "/admin/index");
 				break ;
 			}
 		}
+//		System.out.print("**********"+super.getDefaultTargetUrl());
+//		System.out.print("@@@@@@@@@@@@"+request.getRequestURL());
+//		if(super.getDefaultTargetUrl()==null||"".equals(super.getDefaultTargetUrl())){
+//			setDefaultTargetUrl( "/index");
+//		}
 		super.onAuthenticationSuccess(request, response, authentication);
 	}
 
