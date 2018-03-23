@@ -31,9 +31,9 @@ public class AdminController {
 
 	@RequestMapping(value = "/admin/user", method = RequestMethod.GET)
 	public ModelAndView admin() {
-		List<Duty> dutys = this.userRepo.findAll();
+//		List<Duty> dutys = this.userRepo.findAll();
 		ModelAndView modelAndView = new ModelAndView("admin/system/user");
-		modelAndView.addObject("dutys", dutys);
+		modelAndView.addObject("dutys", "dutys");
 		return modelAndView;
 	}
 

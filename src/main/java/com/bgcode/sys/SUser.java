@@ -27,7 +27,7 @@ public class SUser extends Duty implements UserDetails {
             this.setName(suser.getName());  
             this.setEmail(suser.getEmail());  
             this.setPassword(suser.getPassword());  
-            this.setRols(suser.getRols());  
+           // this.setRols(suser.getRols());  
         }         
     }  
       

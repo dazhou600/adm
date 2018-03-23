@@ -22,7 +22,8 @@ public class SuserService {
 
 	public SUser findByName(String name) {
 		// duty = this.userDao.findByName(name).get(0);
-		Duty duty = this.userDao.findByNamePswd();
+		//Duty duty = this.userDao.findByNamePswd();
+		Duty duty = this.userDao.findOne(name);
 		if (duty == null) {
 			return null;
 		} else {

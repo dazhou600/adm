@@ -1,194 +1,101 @@
+
 package com.bgcode.adm.domain;
 
-
-
-
 import java.util.Date;
-import java.util.Set;
 
-import javax.validation.constraints.NotNull;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.validation.constraints.Past;
 
+import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.bgcode.entity.BaseEntity;
 
-public class Duty {
+@Entity
+public class Duty extends BaseEntity {
 
+	@Id
+	@Length(min = 3, max = 32, message = "长度必须介于 3 和 32 之间")
+	@Column(name="u_name")
 	private String id;
-	private String name;
-	private boolean isactive;
+	@Length(min = 6, max = 12, message = "请输入正确的电话号码")
 	private String mobile;
+	@Length(min = 3, max = 32, message = "长度必须介于 3 和 32 之间")
 	private String photo;
-	private java.util.Date logindate;
-	private String remark;
+	@Column(name="login_ip")
 	private String loginip;
+	@Length(min = 3, max = 32, message = "长度必须介于 3 和 32 之间")
 	private String password;
-	private java.util.Date expiredate;
-	private java.util.Date lastupdate;
-	private java.util.Date createdate;
+	@Past
+	@Column(name="create_date")
+	private Date createdate;
+	@Email
 	private String email;
-	private Set<Role> rols;
-	
-	public Duty(){}
-
-	public Duty(String id, String name,String email,String password,Set<Role> rols){
-		this.id = id;
-		this.name = name;
-		this.email = email;
-		this.password = password;
-		this.rols = rols;
-
+	public Duty(){
 	}
 	
-	public Duty(String id, String name, boolean isactive, String mobile, String photo, Date logindate, String remark,
-			String loginip, String password, Date expiredate, Date lastupdate, Date createdate, String email) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.isactive = isactive;
-		this.mobile = mobile;
-		this.photo = photo;
-		this.logindate = logindate;
-		this.remark = remark;
-		this.loginip = loginip;
-		this.password = password;
-		this.expiredate = expiredate;
-		this.lastupdate = lastupdate;
-		this.createdate = createdate;
-		this.email = email;
+	public Duty(String id) {
+		//super();
+		this.id=id;
 	}
 
-	public Duty(String id, String name, boolean isactive, String mobile, String photo, Date logindate, String remark,
-			String loginip, String password, Date expiredate, Date lastupdate, Date createdate, String email,
-			Set<Role> rols) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.isactive = isactive;
-		this.mobile = mobile;
-		this.photo = photo;
-		this.logindate = logindate;
-		this.remark = remark;
-		this.loginip = loginip;
-		this.password = password;
-		this.expiredate = expiredate;
-		this.lastupdate = lastupdate;
-		this.createdate = createdate;
-		this.email = email;
-		this.rols = rols;
+	public Duty(String id,String password) {
+		this(id);
+		this.password=password;
 	}
-	@NotNull
-	@Length(min = 5, max = 16, message = "长度必须介于 5 和 16 之间")
+	
 	public String getId() {
 		return id;
-	}
-	@Length(min = 5, max = 16, message = "长度必须介于 5 和 16 之间")
-	public String getName() {
-		return name;
-	}
-
-	public boolean getIsactive() {
-		return isactive;
-	}
-
-	public String getMobile() {
-		return mobile;
-	}
-
-	public String getPhoto() {
-		return photo;
-	}
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	public Date getLogindate() {
-		return logindate;
-	}
-
-	@Length(min = 5, max = 200, message = "备注长度必须介于 1 和 200 之间")
-	public String getRemark() {
-		return remark;
-	}
-
-	public String getLoginip() {
-		return loginip;
-	}
-	@NotNull
-	@Length(min = 6, max = 26, message = "密码长度必须介于 6 和 26 之间")
-	public String getPassword() {
-		return password;
-	}
-
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	public Date getExpiredate() {
-		return expiredate;
-	}
-
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	public Date getLastupdate() {
-		return lastupdate;
-	}
-
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	public Date getCreatedate() {
-		return createdate;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-	public Set<Role> getRols() {
-		return rols;
-	}
-
-	public void setRols(Set<Role> rols) {
-		this.rols = rols;
 	}
 
 	public void setId(String id) {
 		this.id = id;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public void setIsactive(boolean isactive) {
-		this.isactive = isactive;
+	public String getMobile() {
+		return mobile;
 	}
 
 	public void setMobile(String mobile) {
 		this.mobile = mobile;
 	}
 
+	public String getPhoto() {
+		return photo;
+	}
+
 	public void setPhoto(String photo) {
 		this.photo = photo;
 	}
 
-	public void setLogindate(java.util.Date logindate) {
-		this.logindate = logindate;
-	}
-
-	public void setRemark(String remark) {
-		this.remark = remark;
+	public String getLoginip() {
+		return loginip;
 	}
 
 	public void setLoginip(String loginip) {
 		this.loginip = loginip;
 	}
 
+	public String getPassword() {
+		return password;
+	}
+
 	public void setPassword(String password) {
 		this.password = password;
 	}
 
-	public void setExpiredate(java.util.Date expiredate) {
-		this.expiredate = expiredate;
+	public Date getCreatedate() {
+		return createdate;
 	}
 
-	public void setLastupdate(java.util.Date lastupdate) {
-		this.lastupdate = lastupdate;
-	}
-
-	public void setCreatedate(java.util.Date createdate) {
+	public void setCreatedate(Date createdate) {
 		this.createdate = createdate;
+	}
+
+	public String getEmail() {
+		return email;
 	}
 
 	public void setEmail(String email) {

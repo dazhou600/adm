@@ -1,11 +1,13 @@
 package com.bgcode;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -29,6 +31,7 @@ import org.thymeleaf.templateresolver.TemplateResolver;
 import com.bgcode.authenticationSuccessHandler.MultipleAuthenticationSuccessHandler;
 import com.bgcode.express.CustomPermissionEvaluator;
 import com.bgcode.filter.CaptcatFilter;
+import com.bgcode.sys.CustomUserDetailsService;
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -38,7 +41,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	private DataSource dataSource;
 	@Autowired
 	private CustomPermissionEvaluator permissionEvaluator;
-
+	@Autowired
+	private HttpServletRequest request ;
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests().antMatchers("/admin/**").hasAnyRole("WZGL", "QXYHGL", "XTSZ", "FWQJK")
@@ -51,11 +55,23 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	public void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.jdbcAuthentication().dataSource(dataSource)
-				.usersByUsernameQuery("SELECT u_name , password , isactive FROM duty where u_name=? ")
-				.authoritiesByUsernameQuery("SELECT u_name ,r_name FROM user_role where u_name=?")
-				.groupAuthoritiesByUsername("SELECT o_id,u_name,operat FROM operatiom where u_name=?")
-				.passwordEncoder(new StandardPasswordEncoder("wztq"));
+		auth.authenticationProvider(authenticationProvider())
+		//auth.userDetailsService(new CustomUserDetailsService(gtJdbcTemplate())).passwordEncoder(new StandardPasswordEncoder("wztq"))
+//		auth.jdbcAuthentication().dataSource(dataSource)
+//				.usersByUsernameQuery("SELECT u_name , password , isactive FROM duty where u_name=? ")
+//				.authoritiesByUsernameQuery("SELECT u_name ,r_name FROM user_role where u_name=?")
+//				.groupAuthoritiesByUsername("SELECT o_id,u_name,operat FROM operatiom where u_name=?")
+//				.passwordEncoder(new StandardPasswordEncoder("wztq"))
+				;
+	}
+	
+	@Bean
+	public DaoAuthenticationProvider authenticationProvider() {
+	    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+	    provider.setHideUserNotFoundExceptions(false);
+	    provider.setUserDetailsService(new CustomUserDetailsService(gtJdbcTemplate(),request));
+	    provider.setPasswordEncoder(new StandardPasswordEncoder("wztq"));
+	    return provider;
 	}
 
 	/*
@@ -82,7 +98,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		templateEngine.addDialect(new SpringSecurityDialect());
 		return templateEngine;
 	}
-
+	@Bean
+	public JdbcTemplate gtJdbcTemplate() {
+		return new JdbcTemplate(dataSource);
+	}
+	
 	// public LoginSuccessHandler loginSuccessHandler() {
 	// return new LoginSuccessHandler();// code6 }
 	// }

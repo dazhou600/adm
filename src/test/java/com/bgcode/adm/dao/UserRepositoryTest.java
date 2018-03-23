@@ -70,8 +70,8 @@ public class UserRepositoryTest {
 		Duty user = new Duty() ;
 		user.setId("13456");
 		user.setPassword("123456");
-		UserRepository dao = new UserRepository(jdbcTemplate) ;
-		dao.addUser(user);
+		//UserRepository dao = new UserRepository(jdbcTemplate) ;
+		//dao.addUser(user);
 	}
 
 }
