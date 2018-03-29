@@ -36,6 +36,8 @@ import com.bgcode.listener.LoginFailureListener;
 @Component
 public class CustomUserDetailsService implements UserDetailsService {
 	private JdbcTemplate jdbcTemplate;
+	
+	public static final Long LOCKTIME = 28800000L;
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 	
@@ -58,7 +60,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 								String password = rs.getString(2);
 								boolean enabled = rs.getBoolean(3);
 								Date last_update = rs.getTimestamp(4);
-								int fails_count = rs.getInt(5)+1;
+								int fails_count = rs.getInt(5);
 								boolean accountNonLocked = rs.getBoolean(6);
 
 								return new UserInfo(username, password, enabled, accountNonLocked,
@@ -85,22 +87,21 @@ public class CustomUserDetailsService implements UserDetailsService {
 			throw new UsernameNotFoundException("没有权限!");
 		}
 		boolean accountNonLocked=user.isAccountNonLocked() ;
-		if((user.getLastDate().getTime() + LoginFailureListener.LOCKTIME) <= System.currentTimeMillis()){
+		if((user.getLastDate().getTime() +LOCKTIME) <= System.currentTimeMillis()){
 			user.setLogincount(0);
 			accountNonLocked=true;
 			System.out.println("*****超过8小时解锁、清零！*******");
 		}
-		if(user.getLogincount()>5){
-			accountNonLocked=false ;
-		}
-		user.setLastDate(new Date());//更新最后登录时间
-		System.out.println("********"+user);
-		System.out.println("********"+request);
+//		if(user.getLogincount()>4){
+//			accountNonLocked=false ;
+//		}
+		//user.setLastDate(new Date());//更新最后登录时间
+		//System.out.println("********"+user);
+		//System.out.println("********"+request);
 		request.getSession().setAttribute("failsCount", user.getLogincount());
-		request.getSession().setAttribute("lastUpdate", user.getLastDate());
-		
-		jdbcTemplate.update("UPDATE duty SET accountNonLocked=?, fails_count=?, last_update=? WHERE u_name=?"
-, accountNonLocked,user.getLogincount(),user.getLastDate(),user.getUsername());//更新数据库
+		//request.getSession().setAttribute("lastUpdate", user.getLastDate());		
+//		jdbcTemplate.update("UPDATE duty SET accountNonLocked=?, fails_count=?, last_update=? WHERE u_name=?"
+//, accountNonLocked,user.getLogincount(),user.getLastDate(),user.getUsername());//更新数据库
 		return new UserInfo(user.getUsername(), user.getPassword(), user.isEnabled(), accountNonLocked,
 				dbAuths, user.getLastDate(), user.getLogincount());
 
@@ -124,7 +125,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 					@Override
 					public GrantedAuthority mapRow(ResultSet rs, int rowNum) throws SQLException {
 						String roleName = rs.getString(3);
-
 						return new SimpleGrantedAuthority(roleName);
 					}
 				});

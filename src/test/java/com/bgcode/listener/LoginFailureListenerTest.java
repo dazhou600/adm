@@ -6,13 +6,24 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.junit.Test;
 
 public class LoginFailureListenerTest {
 	//自定义jdbc3***1521648000000*********
 	//自定义jdbc3***1521704371204*********
-	public static long LOCKTIME = 28800000l ;
+	//public static long LOCKTIME = 28800000l ;
 	@Test
+	public void digistTest(){
+		if(NumberUtils.isDigits("\\u005")){
+			System.out.println("是数字");
+
+		}else {
+			System.out.println("不是数字");
+
+		}
+	}
+	//@Test
 	public void compareTest() throws ParseException{
 		SimpleDateFormat spdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss") ;
 		//Date b = sd.parse("2018-03-22 13:33:45");
