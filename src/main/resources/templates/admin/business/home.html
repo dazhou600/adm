@@ -2,275 +2,330 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <body>
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h1>管理员 面板</h1>
+		<ol class="breadcrumb">
+			<li><a href="#"><i class="fa fa-dashboard"></i> 首页</a></li>
+		</ol>
+	</section>
 
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-      <h1>
-        管理员 面板
-      </h1>
-      <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-dashboard"></i> 首页</a></li>
-      </ol>
-    </section>
+	<!-- 内容主体 -->
+	<section class="content">
+		<form id="messageForm">
+			<textarea rows="4" cols="60" name="text"></textarea>
+			<input type="submit" />
+		</form>
 
-    <!-- Main content -->
-    <section class="content">
+		<script th:inline="javascript">
+    	$('#messageForm').submit(function(e){
+    		e.preventDefault();
+    		var text = $('#messageForm').find('textarea[name="text"]').val();
+    		requestMessage("messager",text);
+    	});
+    
+      var sock = new SockJS([[@{/mesgs}]]);
+      var stomp = Stomp.over(sock);
 
-      <div class="row">
-        <div class="col-md-12">
-<div class="box">
-        <div class="box-header with-border">
-          <h3 class="box-title">公告</h3>
+      stomp.connect('guest', 'guest', function(frame) {
+        console.log('*****  Connected  *****');
+        stomp.subscribe("/topic/msg", handlemessage);
+        stomp.subscribe("/user/queue/notifications", handleNotification);
+        requestMessage("def","n");
+      });
+      
+      function handlemessage(message) {
+    	  console.log('message:', message);
+          console.log('*****  返回消息  *****');
+    	  //$('#output').append("<b>Received message: " + JSON.parse(message.body)+ "</b><br/>");
+          var mess= JSON.parse(message.body);
+          var count = Object.keys(mess).length;  
+          console.log(count);  
+          for(m in mess){
+        	  $('#output').append("<b>返回消息: " + mess[m].id + ":"+mess[m].message +"</b><br/>");
+          	            }
+          }
+      
+      function handleNotification(message) {
+        console.log('Notification: ', message);
+        var mess= JSON.parse(message.body);
+        for(m in mess){
+        	 $('#output').append("<b>返回: " + 
+        			 + mess[m].id + ":"+mess[m].message + "</b><br/>")
+    }
+      // $('#output').append("<b>返回: " + 
+           // JSON.parse(message.body).message + "</b><br/>")
+      }
+      
+      function requestMessage(type,text) {
+        console.log('发送消息 到服务器');
+        stomp.send("/app/msg", {}, 
+            JSON.stringify({ "type": type ,"text":text}));
+      }
 
-          <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="" data-original-title="Collapse">
-              <i class="fa fa-minus"></i></button>
-            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="" data-original-title="Remove">
-              <i class="fa fa-times"></i></button>
-          </div>
-        </div>
-        <div class="box-body">
-          今天夜间降温寒潮将至，请群里的朋友们充分做好御寒工作。该南飞的南飞，该换毛的换毛，实在不行的就冬眠。如果怕冷可以去墙角，因为墙角有
-90度；如果还冷可以去躺地上，因为地面有180度；如果还冷可以自转一周，因为那就有360度啦；如果还是冷可以去梦里，因为梦里寻她千百度，
-你要几度就几度！
-        </div>
-        <!-- /.box-body -->
-        <div class="box-footer pull-right">
-          管理员
-        </div>
-        <!-- /.box-footer-->
-      </div>
-     </div>
-    <!-- /.col -->
-        <div class="col-md-12">
-          <div class="nav-tabs-custom">
-            <ul class="nav nav-tabs">
-              <li class="active"><a href="#activity" data-toggle="tab" aria-expanded="true">通知</a></li>
-              <li class=""><a href="#timeline" data-toggle="tab" aria-expanded="false">面板</a></li>
-            </ul>
-            <div class="tab-content">
-              <div class="tab-pane active" id="activity">
-                <!-- Post -->
-                <div class="post">
-                  <div class="user-block">
-                    <img class="img-circle img-bordered-sm" src="../../dist/img/user1-128x128.jpg" alt="user image"/>
-                        <span class="username">
-                          <a href="#">Jonathan Burke Jr.</a>
-                          <a href="#" class="pull-right btn-box-tool"><i class="fa fa-times"></i></a>
-                        </span>/
-                    <span class="description">Shared publicly - 7:30 PM today</span>
-                  </div>
-                  <!-- /.user-block -->
-                  <p>
-                    Lorem ipsum represents a long-held tradition for designers,
-                    typographers and the like. Some people hate it and argue for
-                    its demise, but others ignore the hate as they create awesome
-                    tools to help create filler text for everyone from bacon lovers
-                    to Charlie Sheen fans.
-                  </p>
-                  <ul class="list-inline">
-                    <li><a href="#" class="link-black text-sm"><i class="fa fa-share margin-r-5"></i> Share</a></li>
-                    <li><a href="#" class="link-black text-sm"><i class="fa fa-thumbs-o-up margin-r-5"></i> Like</a>
-                    </li>
-                    <li class="pull-right">
-                      <a href="#" class="link-black text-sm"><i class="fa fa-comments-o margin-r-5"></i> Comments
-                        (5)</a></li>
-                  </ul>
+      $("#stop").click(function() {sock.close()});
+      </script>
 
-                  <input class="form-control input-sm" placeholder="Type a comment" type="text"/>
-                </div>
-                <!-- /.post -->
+		<div id="output"></div>
+		
 
-                <!-- Post -->
-                <div class="post clearfix">
-                  <div class="user-block">
-                    <img class="img-circle img-bordered-sm" src="../../dist/img/user7-128x128.jpg" alt="User Image"/>
-                        <span class="username">
-                          <a href="#">Sarah Ross</a>
-                          <a href="#" class="pull-right btn-box-tool"><i class="fa fa-times"></i></a>
-                        </span>
-                    <span class="description">Sent you a message - 3 days ago</span>
-                  </div>
-                  <!-- /.user-block -->
-                  <p>
-                    Lorem ipsum represents a long-held tradition for designers,
-                    typographers and the like. Some people hate it and argue for
-                    its demise, but others ignore the hate as they create awesome
-                    tools to help create filler text for everyone from bacon lovers
-                    to Charlie Sheen fans.
-                  </p>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box">
+					<div class="box-header with-border">
+						<h3 class="box-title">公告</h3>
 
-                  <form class="form-horizontal">
-                    <div class="form-group margin-bottom-none">
-                      <div class="col-sm-9">
-                        <input class="form-control input-sm" placeholder="Response"/>
-                      </div>
-                      <div class="col-sm-3">
-                        <button type="submit" class="btn btn-danger pull-right btn-block btn-sm">Send</button>
-                      </div>
-                    </div>
-                  </form>
-                </div>
-                <!-- /.post -->
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool"
+								data-widget="collapse" data-toggle="tooltip" title=""
+								data-original-title="Collapse">
+								<i class="fa fa-minus"></i>
+							</button>
+							<button type="button" class="btn btn-box-tool"
+								data-widget="remove" data-toggle="tooltip" title=""
+								data-original-title="Remove">
+								<i class="fa fa-times"></i>
+							</button>
+						</div>
+					</div>
+					<div class="box-body">
+						今天夜间降温寒潮将至，请群里的朋友们充分做好御寒工作。该南飞的南飞，该换毛的换毛，实在不行的就冬眠。如果怕冷可以去墙角，因为墙角有
+						90度；如果还冷可以去躺地上，因为地面有180度；如果还冷可以自转一周，因为那就有360度啦；如果还是冷可以去梦里，因为梦里寻她千百度，
+						你要几度就几度！</div>
+					<!-- /.box-body -->
+					<div class="box-footer pull-right">管理员</div>
+					<!-- /.box-footer-->
+				</div>
+			</div>
+			<!-- /.col -->
+			<div class="col-md-12">
+				<div class="nav-tabs-custom">
+					<ul class="nav nav-tabs">
+						<li class="active"><a href="#activity" data-toggle="tab"
+							aria-expanded="true">通知</a></li>
+						<li class=""><a href="#timeline" data-toggle="tab"
+							aria-expanded="false">面板</a></li>
+					</ul>
+					<div class="tab-content">
+						<div class="tab-pane active" id="activity">
+							<!-- Post -->
+							<div class="post">
+								<div class="user-block">
+									<img class="img-circle img-bordered-sm"
+										src="../../dist/img/user1-128x128.jpg" alt="user image" /> <span
+										class="username"> <a href="#">Jonathan Burke Jr.</a> <a
+										href="#" class="pull-right btn-box-tool"><i
+											class="fa fa-times"></i></a>
+									</span>/ <span class="description">Shared publicly - 7:30 PM
+										today</span>
+								</div>
+								<!-- /.user-block -->
+								<p>Lorem ipsum represents a long-held tradition for
+									designers, typographers and the like. Some people hate it and
+									argue for its demise, but others ignore the hate as they create
+									awesome tools to help create filler text for everyone from
+									bacon lovers to Charlie Sheen fans.</p>
+								<ul class="list-inline">
+									<li><a href="#" class="link-black text-sm"><i
+											class="fa fa-share margin-r-5"></i> Share</a></li>
+									<li><a href="#" class="link-black text-sm"><i
+											class="fa fa-thumbs-o-up margin-r-5"></i> Like</a></li>
+									<li class="pull-right"><a href="#"
+										class="link-black text-sm"><i
+											class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>
+								</ul>
 
-                <!-- Post -->
-                <div class="post">
-                  <div class="user-block">
-                    <img class="img-circle img-bordered-sm" src="../../dist/img/user6-128x128.jpg" alt="User Image"/>
-                        <span class="username">
-                          <a href="#">Adam Jones</a>
-                          <a href="#" class="pull-right btn-box-tool"><i class="fa fa-times"></i></a>
-                        </span>
-                    <span class="description">Posted 5 photos - 5 days ago</span>
-                  </div>
-                  <!-- /.user-block -->
-                  <div class="row margin-bottom">
-                    <div class="col-sm-6">
-                      <img class="img-responsive" src="../../dist/img/photo1.png" alt="Photo"/>
-                    </div>
-                    <!-- /.col -->
-                    <div class="col-sm-6">
-                      <div class="row">
-                        <div class="col-sm-6">
-                          <img class="img-responsive" src="../../dist/img/photo2.png" alt="Photo"/>
-                          <br/>
-                          <img class="img-responsive" src="../../dist/img/photo3.jpg" alt="Photo"/>
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-sm-6">
-                          <img class="img-responsive" src="../../dist/img/photo4.jpg" alt="Photo"/>
-                          <br/>
-                          <img class="img-responsive" src="../../dist/img/photo1.png" alt="Photo"/>
-                        </div>
-                        <!-- /.col -->
-                      </div>
-                      <!-- /.row -->
-                    </div>
-                    <!-- /.col -->
-                  </div>
-                  <!-- /.row -->
+								<input class="form-control input-sm"
+									placeholder="Type a comment" type="text" />
+							</div>
+							<!-- /.post -->
 
-                  <ul class="list-inline">
-                    <li><a href="#" class="link-black text-sm"><i class="fa fa-share margin-r-5"></i> Share</a></li>
-                    <li><a href="#" class="link-black text-sm"><i class="fa fa-thumbs-o-up margin-r-5"></i> Like</a>
-                    </li>
-                    <li class="pull-right">
-                      <a href="#" class="link-black text-sm"><i class="fa fa-comments-o margin-r-5"></i> Comments
-                        (5)</a></li>
-                  </ul>
+							<!-- Post -->
+							<div class="post clearfix">
+								<div class="user-block">
+									<img class="img-circle img-bordered-sm"
+										src="../../dist/img/user7-128x128.jpg" alt="User Image" /> <span
+										class="username"> <a href="#">Sarah Ross</a> <a
+										href="#" class="pull-right btn-box-tool"><i
+											class="fa fa-times"></i></a>
+									</span> <span class="description">Sent you a message - 3 days
+										ago</span>
+								</div>
+								<!-- /.user-block -->
+								<p>Lorem ipsum represents a long-held tradition for
+									designers, typographers and the like. Some people hate it and
+									argue for its demise, but others ignore the hate as they create
+									awesome tools to help create filler text for everyone from
+									bacon lovers to Charlie Sheen fans.</p>
 
-                  <input class="form-control input-sm" placeholder="Type a comment" type="text"/>
-                </div>
-                <!-- /.post -->
-              </div>
-              <!-- /.tab-pane -->
-              <div class="tab-pane" id="timeline">
-                <!-- The timeline -->
-                <ul class="timeline timeline-inverse">
-                  <!-- timeline time label -->
-                  <li class="time-label">
-                        <span class="bg-red">
-                          10 Feb. 2014
-                        </span>
-                  </li>
-                  <!-- /.timeline-label -->
-                  <!-- timeline item -->
-                  <li>
-                    <i class="fa fa-envelope bg-blue"></i>
+								<form class="form-horizontal">
+									<div class="form-group margin-bottom-none">
+										<div class="col-sm-9">
+											<input class="form-control input-sm" placeholder="Response" />
+										</div>
+										<div class="col-sm-3">
+											<button type="submit"
+												class="btn btn-danger pull-right btn-block btn-sm">Send</button>
+										</div>
+									</div>
+								</form>
+							</div>
+							<!-- /.post -->
 
-                    <div class="timeline-item">
-                      <span class="time"><i class="fa fa-clock-o"></i> 12:05</span>
+							<!-- Post -->
+							<div class="post">
+								<div class="user-block">
+									<img class="img-circle img-bordered-sm"
+										src="../../dist/img/user6-128x128.jpg" alt="User Image" /> <span
+										class="username"> <a href="#">Adam Jones</a> <a
+										href="#" class="pull-right btn-box-tool"><i
+											class="fa fa-times"></i></a>
+									</span> <span class="description">Posted 5 photos - 5 days ago</span>
+								</div>
+								<!-- /.user-block -->
+								<div class="row margin-bottom">
+									<div class="col-sm-6">
+										<img class="img-responsive" src="../../dist/img/photo1.png"
+											alt="Photo" />
+									</div>
+									<!-- /.col -->
+									<div class="col-sm-6">
+										<div class="row">
+											<div class="col-sm-6">
+												<img class="img-responsive" src="../../dist/img/photo2.png"
+													alt="Photo" /> <br /> <img class="img-responsive"
+													src="../../dist/img/photo3.jpg" alt="Photo" />
+											</div>
+											<!-- /.col -->
+											<div class="col-sm-6">
+												<img class="img-responsive" src="../../dist/img/photo4.jpg"
+													alt="Photo" /> <br /> <img class="img-responsive"
+													src="../../dist/img/photo1.png" alt="Photo" />
+											</div>
+											<!-- /.col -->
+										</div>
+										<!-- /.row -->
+									</div>
+									<!-- /.col -->
+								</div>
+								<!-- /.row -->
 
-                      <h3 class="timeline-header"><a href="#">Support Team</a> sent you an email</h3>
+								<ul class="list-inline">
+									<li><a href="#" class="link-black text-sm"><i
+											class="fa fa-share margin-r-5"></i> Share</a></li>
+									<li><a href="#" class="link-black text-sm"><i
+											class="fa fa-thumbs-o-up margin-r-5"></i> Like</a></li>
+									<li class="pull-right"><a href="#"
+										class="link-black text-sm"><i
+											class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>
+								</ul>
 
-                      <div class="timeline-body">
-                        Etsy doostang zoodles disqus groupon greplin oooj voxy zoodles,
-                        weebly ning heekya handango imeem plugg dopplr jibjab, movity
-                        jajah plickers sifteo edmodo ifttt zimbra. Babblely odeo kaboodle
-                        quora plaxo ideeli hulu weebly balihoo...
-                      </div>
-                      <div class="timeline-footer">
-                        <a class="btn btn-primary btn-xs">Read more</a>
-                        <a class="btn btn-danger btn-xs">Delete</a>
-                      </div>
-                    </div>
-                  </li>
-                  <!-- END timeline item -->
-                  <!-- timeline item -->
-                  <li>
-                    <i class="fa fa-user bg-aqua"></i>
+								<input class="form-control input-sm"
+									placeholder="Type a comment" type="text" />
+							</div>
+							<!-- /.post -->
+						</div>
+						<!-- /.tab-pane -->
+						<div class="tab-pane" id="timeline">
+							<!-- The timeline -->
+							<ul class="timeline timeline-inverse">
+								<!-- timeline time label -->
+								<li class="time-label"><span class="bg-red"> 10 Feb.
+										2014 </span></li>
+								<!-- /.timeline-label -->
+								<!-- timeline item -->
+								<li><i class="fa fa-envelope bg-blue"></i>
 
-                    <div class="timeline-item">
-                      <span class="time"><i class="fa fa-clock-o"></i> 5 mins ago</span>
+									<div class="timeline-item">
+										<span class="time"><i class="fa fa-clock-o"></i> 12:05</span>
 
-                      <h3 class="timeline-header no-border"><a href="#">Sarah Young</a> accepted your friend request
-                      </h3>
-                    </div>
-                  </li>
-                  <!-- END timeline item -->
-                  <!-- timeline item -->
-                  <li>
-                    <i class="fa fa-comments bg-yellow"></i>
+										<h3 class="timeline-header">
+											<a href="#">Support Team</a> sent you an email
+										</h3>
 
-                    <div class="timeline-item">
-                      <span class="time"><i class="fa fa-clock-o"></i> 27 mins ago</span>
+										<div class="timeline-body">Etsy doostang zoodles disqus
+											groupon greplin oooj voxy zoodles, weebly ning heekya
+											handango imeem plugg dopplr jibjab, movity jajah plickers
+											sifteo edmodo ifttt zimbra. Babblely odeo kaboodle quora
+											plaxo ideeli hulu weebly balihoo...</div>
+										<div class="timeline-footer">
+											<a class="btn btn-primary btn-xs">Read more</a> <a
+												class="btn btn-danger btn-xs">Delete</a>
+										</div>
+									</div></li>
+								<!-- END timeline item -->
+								<!-- timeline item -->
+								<li><i class="fa fa-user bg-aqua"></i>
 
-                      <h3 class="timeline-header"><a href="#">Jay White</a> commented on your post</h3>
+									<div class="timeline-item">
+										<span class="time"><i class="fa fa-clock-o"></i> 5 mins
+											ago</span>
 
-                      <div class="timeline-body">
-                        Take me to your leader!
-                        Switzerland is small and neutral!
-                        We are more like Germany, ambitious and misunderstood!
-                      </div>
-                      <div class="timeline-footer">
-                        <a class="btn btn-warning btn-flat btn-xs">View comment</a>
-                      </div>
-                    </div>
-                  </li>
-                  <!-- END timeline item -->
-                  <!-- timeline time label -->
-                  <li class="time-label">
-                        <span class="bg-green">
-                          3 Jan. 2014
-                        </span>
-                  </li>
-                  <!-- /.timeline-label -->
-                  <!-- timeline item -->
-                  <li>
-                    <i class="fa fa-camera bg-purple"></i>
+										<h3 class="timeline-header no-border">
+											<a href="#">Sarah Young</a> accepted your friend request
+										</h3>
+									</div></li>
+								<!-- END timeline item -->
+								<!-- timeline item -->
+								<li><i class="fa fa-comments bg-yellow"></i>
 
-                    <div class="timeline-item">
-                      <span class="time"><i class="fa fa-clock-o"></i> 2 days ago</span>
+									<div class="timeline-item">
+										<span class="time"><i class="fa fa-clock-o"></i> 27
+											mins ago</span>
 
-                      <h3 class="timeline-header"><a href="#">Mina Lee</a> uploaded new photos</h3>
+										<h3 class="timeline-header">
+											<a href="#">Jay White</a> commented on your post
+										</h3>
 
-                      <div class="timeline-body">
-                        <img src="http://placehold.it/150x100" alt="..." class="margin"/>
-                        <img src="http://placehold.it/150x100" alt="..." class="margin"/>
-                        <img src="http://placehold.it/150x100" alt="..." class="margin"/>
-                        <img src="http://placehold.it/150x100" alt="..." class="margin"/>
-                      </div>
-                    </div>
-                  </li>
-                  <!-- END timeline item -->
-                  <li>
-                    <i class="fa fa-clock-o bg-gray"></i>
-                  </li>
-                </ul>
-              </div>
-              <!-- /.tab-pane -->
+										<div class="timeline-body">Take me to your leader!
+											Switzerland is small and neutral! We are more like Germany,
+											ambitious and misunderstood!</div>
+										<div class="timeline-footer">
+											<a class="btn btn-warning btn-flat btn-xs">View comment</a>
+										</div>
+									</div></li>
+								<!-- END timeline item -->
+								<!-- timeline time label -->
+								<li class="time-label"><span class="bg-green"> 3
+										Jan. 2014 </span></li>
+								<!-- /.timeline-label -->
+								<!-- timeline item -->
+								<li><i class="fa fa-camera bg-purple"></i>
 
-            </div>
-            <!-- /.tab-content -->
-          </div>
-          <!-- /.nav-tabs-custom -->
-        </div>
-        <!-- /.col -->
-      </div>
-      <!-- /.row -->
+									<div class="timeline-item">
+										<span class="time"><i class="fa fa-clock-o"></i> 2 days
+											ago</span>
 
-    </section>
-    <!-- /.content -->
-  
+										<h3 class="timeline-header">
+											<a href="#">Mina Lee</a> uploaded new photos
+										</h3>
+
+										<div class="timeline-body">
+											<img src="http://placehold.it/150x100" alt="..."
+												class="margin" /> <img src="http://placehold.it/150x100"
+												alt="..." class="margin" /> <img
+												src="http://placehold.it/150x100" alt="..." class="margin" />
+											<img src="http://placehold.it/150x100" alt="..."
+												class="margin" />
+										</div>
+									</div></li>
+								<!-- END timeline item -->
+								<li><i class="fa fa-clock-o bg-gray"></i></li>
+							</ul>
+						</div>
+						<!-- /.tab-pane -->
+
+					</div>
+					<!-- /.tab-content -->
+				</div>
+				<!-- /.nav-tabs-custom -->
+			</div>
+			<!-- /.col -->
+		</div>
+		<!-- /.row -->
+
+	</section>
+	<!-- /.content -->
+
 </body>
 </html>
