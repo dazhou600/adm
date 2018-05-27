@@ -4,11 +4,12 @@ import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.Digits;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.Length;
-
+@MappedSuperclass  
 public abstract class BaseEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -25,8 +26,10 @@ public abstract class BaseEntity implements Serializable {
 	protected String remark;
 
 	@Length(min = 5, max = 32, message = "长度必须介于 5 和 32 之间")
+	@Column(name="uid")
 	protected String uid;
-
+	
+	@Column(name="last_update")
 	protected Date lastTime;
 
 	public BaseEntity() {

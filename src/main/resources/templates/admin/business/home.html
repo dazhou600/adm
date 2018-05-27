@@ -1,6 +1,42 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<script type="text/javascript" id="msgList2">
+<div class="post">
+{{#if this.length}} 
+{{#each this}}
+<div class="user-block">
+	<img class="img-circle img-bordered-sm"
+		src="/imgs/user3-128x128.jpg" alt="user image" /> <span
+		class="username"> <a href="#">{{id}}</a> <a
+		href="#" class="pull-right btn-box-tool"><i
+			class="fa fa-times"></i></a>
+	</span>/ <span class="description">Shared publicly - 7:30 PM
+		today</span>
+</div>
+<!-- /.user-block -->
+<p>{{message}}</p>
+<ul class="list-inline">
+	<li><a href="#" class="link-black text-sm"><i
+			class="fa fa-share margin-r-5"></i> Share</a></li>
+	<li><a href="#" class="link-black text-sm"><i
+			class="fa fa-thumbs-o-up margin-r-5"></i> Like</a></li>
+	<li class="pull-right"><a href="#"
+		class="link-black text-sm"><i
+			class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>
+</ul>
 
+<input class="form-control input-sm"
+	placeholder="Type a comment" type="text" />
+{{/each}}
+{{/if}}
+</div>
+</script>
+
+<script type="text/template" id="myList">
+{{#list this}}{{id}} 信息 ：{{message}}{{/list}}
+</script>
+
+<div id="output"></div>
 <body>
 	<!-- Content Header (Page header) -->
 	<section class="content-header">
@@ -17,57 +53,9 @@
 			<input type="submit" />
 		</form>
 
-		<script th:inline="javascript">
-    	$('#messageForm').submit(function(e){
-    		e.preventDefault();
-    		var text = $('#messageForm').find('textarea[name="text"]').val();
-    		requestMessage("messager",text);
-    	});
-    
-      var sock = new SockJS([[@{/mesgs}]]);
-      var stomp = Stomp.over(sock);
 
-      stomp.connect('guest', 'guest', function(frame) {
-        console.log('*****  Connected  *****');
-        stomp.subscribe("/topic/msg", handlemessage);
-        stomp.subscribe("/user/queue/notifications", handleNotification);
-        requestMessage("def","n");
-      });
-      
-      function handlemessage(message) {
-    	  console.log('message:', message);
-          console.log('*****  返回消息  *****');
-    	  //$('#output').append("<b>Received message: " + JSON.parse(message.body)+ "</b><br/>");
-          var mess= JSON.parse(message.body);
-          var count = Object.keys(mess).length;  
-          console.log(count);  
-          for(m in mess){
-        	  $('#output').append("<b>返回消息: " + mess[m].id + ":"+mess[m].message +"</b><br/>");
-          	            }
-          }
-      
-      function handleNotification(message) {
-        console.log('Notification: ', message);
-        var mess= JSON.parse(message.body);
-        for(m in mess){
-        	 $('#output').append("<b>返回: " + 
-        			 + mess[m].id + ":"+mess[m].message + "</b><br/>")
-    }
-      // $('#output').append("<b>返回: " + 
-           // JSON.parse(message.body).message + "</b><br/>")
-      }
-      
-      function requestMessage(type,text) {
-        console.log('发送消息 到服务器');
-        stomp.send("/app/msg", {}, 
-            JSON.stringify({ "type": type ,"text":text}));
-      }
 
-      $("#stop").click(function() {sock.close()});
-      </script>
 
-		<div id="output"></div>
-		
 
 		<div class="row">
 			<div class="col-md-12">
@@ -98,7 +86,7 @@
 				</div>
 			</div>
 			<!-- /.col -->
-			<div class="col-md-12">
+			<div class="col-md-12" id="mdmsg">
 				<div class="nav-tabs-custom">
 					<ul class="nav nav-tabs">
 						<li class="active"><a href="#activity" data-toggle="tab"
@@ -109,120 +97,6 @@
 					<div class="tab-content">
 						<div class="tab-pane active" id="activity">
 							<!-- Post -->
-							<div class="post">
-								<div class="user-block">
-									<img class="img-circle img-bordered-sm"
-										src="../../dist/img/user1-128x128.jpg" alt="user image" /> <span
-										class="username"> <a href="#">Jonathan Burke Jr.</a> <a
-										href="#" class="pull-right btn-box-tool"><i
-											class="fa fa-times"></i></a>
-									</span>/ <span class="description">Shared publicly - 7:30 PM
-										today</span>
-								</div>
-								<!-- /.user-block -->
-								<p>Lorem ipsum represents a long-held tradition for
-									designers, typographers and the like. Some people hate it and
-									argue for its demise, but others ignore the hate as they create
-									awesome tools to help create filler text for everyone from
-									bacon lovers to Charlie Sheen fans.</p>
-								<ul class="list-inline">
-									<li><a href="#" class="link-black text-sm"><i
-											class="fa fa-share margin-r-5"></i> Share</a></li>
-									<li><a href="#" class="link-black text-sm"><i
-											class="fa fa-thumbs-o-up margin-r-5"></i> Like</a></li>
-									<li class="pull-right"><a href="#"
-										class="link-black text-sm"><i
-											class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>
-								</ul>
-
-								<input class="form-control input-sm"
-									placeholder="Type a comment" type="text" />
-							</div>
-							<!-- /.post -->
-
-							<!-- Post -->
-							<div class="post clearfix">
-								<div class="user-block">
-									<img class="img-circle img-bordered-sm"
-										src="../../dist/img/user7-128x128.jpg" alt="User Image" /> <span
-										class="username"> <a href="#">Sarah Ross</a> <a
-										href="#" class="pull-right btn-box-tool"><i
-											class="fa fa-times"></i></a>
-									</span> <span class="description">Sent you a message - 3 days
-										ago</span>
-								</div>
-								<!-- /.user-block -->
-								<p>Lorem ipsum represents a long-held tradition for
-									designers, typographers and the like. Some people hate it and
-									argue for its demise, but others ignore the hate as they create
-									awesome tools to help create filler text for everyone from
-									bacon lovers to Charlie Sheen fans.</p>
-
-								<form class="form-horizontal">
-									<div class="form-group margin-bottom-none">
-										<div class="col-sm-9">
-											<input class="form-control input-sm" placeholder="Response" />
-										</div>
-										<div class="col-sm-3">
-											<button type="submit"
-												class="btn btn-danger pull-right btn-block btn-sm">Send</button>
-										</div>
-									</div>
-								</form>
-							</div>
-							<!-- /.post -->
-
-							<!-- Post -->
-							<div class="post">
-								<div class="user-block">
-									<img class="img-circle img-bordered-sm"
-										src="../../dist/img/user6-128x128.jpg" alt="User Image" /> <span
-										class="username"> <a href="#">Adam Jones</a> <a
-										href="#" class="pull-right btn-box-tool"><i
-											class="fa fa-times"></i></a>
-									</span> <span class="description">Posted 5 photos - 5 days ago</span>
-								</div>
-								<!-- /.user-block -->
-								<div class="row margin-bottom">
-									<div class="col-sm-6">
-										<img class="img-responsive" src="../../dist/img/photo1.png"
-											alt="Photo" />
-									</div>
-									<!-- /.col -->
-									<div class="col-sm-6">
-										<div class="row">
-											<div class="col-sm-6">
-												<img class="img-responsive" src="../../dist/img/photo2.png"
-													alt="Photo" /> <br /> <img class="img-responsive"
-													src="../../dist/img/photo3.jpg" alt="Photo" />
-											</div>
-											<!-- /.col -->
-											<div class="col-sm-6">
-												<img class="img-responsive" src="../../dist/img/photo4.jpg"
-													alt="Photo" /> <br /> <img class="img-responsive"
-													src="../../dist/img/photo1.png" alt="Photo" />
-											</div>
-											<!-- /.col -->
-										</div>
-										<!-- /.row -->
-									</div>
-									<!-- /.col -->
-								</div>
-								<!-- /.row -->
-
-								<ul class="list-inline">
-									<li><a href="#" class="link-black text-sm"><i
-											class="fa fa-share margin-r-5"></i> Share</a></li>
-									<li><a href="#" class="link-black text-sm"><i
-											class="fa fa-thumbs-o-up margin-r-5"></i> Like</a></li>
-									<li class="pull-right"><a href="#"
-										class="link-black text-sm"><i
-											class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>
-								</ul>
-
-								<input class="form-control input-sm"
-									placeholder="Type a comment" type="text" />
-							</div>
 							<!-- /.post -->
 						</div>
 						<!-- /.tab-pane -->

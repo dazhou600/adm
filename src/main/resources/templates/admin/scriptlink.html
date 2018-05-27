@@ -12,7 +12,16 @@
 
 <!-- AdminLTE App -->
 <script th:src="@{/webjars/AdminLTE/2.4.3/dist/js/adminlte.min.js}"></script>
+<script th:src="@{/webjars/AdminLTE/2.4.3/plugins/jQueryUI/jquery-ui.min.js}"></script>
+<script th:src="@{/webjars/handlebars/4.0.11/handlebars.min.js}"></script>
+<script th:src="@{/js/handlehtml.js}"></script>
+<script th:src="@{/js/Chart.js}"></script>
 
+<script type="text/javascript">
+$(document).ready(function(){
+    $('#example2').DataTable();
+});
+</script>
 </head>
 <body>
 
