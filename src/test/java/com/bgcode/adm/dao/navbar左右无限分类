@@ -1,0 +1,333 @@
+// 插入子类（起始ID，插入位置point) ( 1、get(起始ID) 返回所有子类《和level》 2、创建表 把子ID=父ID+1 放入表中并且编号 3、创建表 把大于》插入点子类rgt 和大于》插入点lft 建表 instlft instrgt 4、更新 5、插入新数据
+#跨节点移动节点
+#跨节点移动节点依赖1delSubnode(ysid)2recnode(ysid,mbid,namestr)无法同步事物
+drop PROCEDURE  if exists updwNode;
+delimiter //
+CREATE PROCEDURE updwNode(ysid int,mbid int)
+begin
+  DECLARE vrgt,vlft,t_error,vslft,vsrgt,vslevel,vlevel,allmovenode,m int DEFAULT 0;
+  DECLARE namestr varchar(60) char set utf8;
+  #DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1;
+  select lft,rgt,CountLayer(ysid) into vlft,vrgt,vlevel from nav_bar where bid=ysid;
+  select lft,rgt ,CountLayer(mbid) into vslft,vsrgt,vslevel from nav_bar where bid=mbid;
+
+tscrwz :begin
+   if vlft<1 or vslft<1 or vrgt<vlft or vsrgt<vslft or vlevel<vslevel then leave tscrwz; end if;
+	drop table if exists _temp_updwnode;
+	CREATE TEMPORARY TABLE _temp_updwnode (i int(11),bid int(11),lft int(11),rgt int(11),level int(11),rname varchar(50),primary key(bid)) DEFAULT CHARACTER SET = utf8;
+	START TRANSACTION;
+    insert into _temp_updwnode(i,bid,lft,rgt,level,rname) SELECT (@i:=@i+1) i,bid,lft,rgt,CountLayer(bid) level,rname FROM nav_bar, (SELECT @i:=0) as i where  lft>=vlft and rgt<=vrgt order by lft asc;
+	set allmovenode = (select count(bid) from _temp_updwnode);
+    #所有待移动节点数目大于0且与原始节点的总数相等
+if allmovenode>0 and(((vrgt+1)-vlft)/2= allmovenode) then
+		call delSubnode(ysid);
+        (select rname into namestr from _temp_updwnode where i=1);
+        call recnode(ysid,mbid,namestr);
+        set m=1;
+        #重新赋值存储父节点值
+        set vlft=mbid;
+        while  m<allmovenode do
+			set m=m+1;
+            select bid,level,rname into ysid,vlevel,namestr from _temp_updwnode where i=m;
+            select bid,level into mbid,vslevel from _temp_updwnode where i=m-1;
+            #不是上一条记录(m-1)的子类因此目标id为以前的id
+            if vlevel=vslevel then
+				set mbid=vlft;
+            end if;
+			call recnode(ysid,mbid,namestr);
+            #目标id继往下传递续
+            set vlft=mbid;
+        end while;
+    end if ;
+    end tscrwz;
+end;
+    //
+delimiter ;
+#平抑节点(同父节点)
+drop PROCEDURE  if exists moveNode;
+delimiter //
+CREATE PROCEDURE moveNode(p_id int,vbid int, mbwz int)
+begin
+  DECLARE vrgt,vlft,vlevel,t_error,vslft,vsrgt,yswz int DEFAULT 0;
+ DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1;
+  select lft,rgt,CountLayer(p_id) into vlft,vrgt,vlevel from nav_bar where bid=p_id;
+tscrwz :begin
+    if vlevel<1 then leave tscrwz ;end if;
+#创建临时表存储子类
+drop table if exists _temp_movenode;
+CREATE TEMPORARY TABLE _temp_movenode (i int,bid int(11),lft int,rgt int,primary key(bid));
+	#临时表填充数据(按顺序排列的儿节点)
+    insert into _temp_movenode(i,bid,lft,rgt) select i,bid,lft,rgt from (select * from (SELECT (@i:=@i+1) i,bid,lft,rgt FROM (SELECT @i:=0) bianh ,nav_bar where lft>vlft and rgt<vrgt  and CountLayer(bid)=vlevel+1 order by lft)  rz) bh ;
+	#初始化变量，重新利用给原始节点赋值
+    set vlft=0,vrgt= 0;
+	select i,lft,rgt into yswz,vlft,vrgt from _temp_movenode where bid=vbid;
+	select lft,rgt into vslft,vsrgt from _temp_movenode where i=mbwz;
+   if vlft<1 or vslft<1 or vrgt<vlft or vsrgt<vslft then leave tscrwz; end if;
+    SET SQL_SAFE_UPDATES = 0;
+	START TRANSACTION;
+    delete from _temp_movenode;
+    #待移动节点及其子类放入临时表
+    insert into _temp_movenode(bid) select bid from nav_bar where lft>=vlft and rgt<=vrgt;
+   #向上移动
+    if yswz>mbwz  then
+		update nav_bar set lft=lft+(vrgt-vlft+1), rgt=rgt+(vrgt-vlft+1) where lft>=vslft and rgt<vlft;
+        update nav_bar set lft=lft-(vlft-vslft),rgt=rgt-(vlft-vslft) where bid in (select bid from _temp_movenode);
+    end if;
+    if yswz<mbwz then
+		update nav_bar  set lft=lft-(vrgt-vlft+1),rgt=rgt-(vrgt-vlft+1) where lft>vrgt and rgt<=vsrgt;
+		update nav_bar set lft=lft+(vsrgt-vrgt),rgt=rgt+(vsrgt-vrgt) where bid in (select bid from _temp_movenode);
+    end if ;
+		IF t_error = 1 THEN 
+            ROLLBACK;    
+        ELSE 
+            COMMIT;    
+        END IF;
+    end tscrwz;
+    drop table _temp_movenode;
+end;
+    //
+delimiter ;
+#增加节点存储过程(任意位置)
+drop PROCEDURE  if exists addSubnode;
+delimiter //
+CREATE PROCEDURE addSubnode(start_id int,crwz int, rname varchar(50) CHARSET utf8)
+begin
+  DECLARE vrgt,vlft,vlevel,t_error,sumson,vsrgt int DEFAULT 0;
+  DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1;
+  select lft,rgt,CountLayer(start_id) into vlft,vrgt,vlevel from nav_bar where bid=start_id;
+    tscrwz :begin
+    if vlft<1 or vrgt<2 then leave tscrwz ;end if;
+	SET SQL_SAFE_UPDATES = 0;
+	#为直接子类总数赋值
+	select count(bid) into sumson from (SELECT bid FROM nav_bar where lft>vlft and rgt<vrgt and CountLayer(bid)=vlevel+1) as rz ;
+    #在位置1插入也就是起始节点左边加一
+    if crwz<1 or sumson=0 then
+		START TRANSACTION;    
+		update nav_bar set lft=lft+2 where lft>vlft;
+		update nav_bar set rgt=rgt+2 where rgt>vlft;
+        insert into nav_bar(lft,rgt,rname) value(vlft+1,vlft+2,rname);
+    end if;
+    if crwz>=1 and sumson<>0 then
+	 if crwz>sumson then
+		set crwz=sumson;
+     end if;
+     select rgt into vsrgt from (select * from (SELECT (@i:=@i+1) i,bid,lft,rgt,rname FROM (SELECT @i:=0) bianh ,nav_bar where lft>vlft and rgt<vrgt  and CountLayer(bid)=vlevel+1 order by lft)  rz) bh where bh.i=crwz  ;
+     START TRANSACTION;    
+		update nav_bar set lft=lft+2 where lft>vsrgt;
+		update nav_bar set rgt=rgt+2 where rgt>vsrgt;
+        insert into nav_bar(lft,rgt,rname) value(vsrgt+1,vsrgt+2,rname);
+    end if ;
+		IF t_error = 1 THEN 
+            ROLLBACK;    
+        ELSE 
+            COMMIT;    
+        END IF;
+    end tscrwz;
+	SET SQL_SAFE_UPDATES = 1;
+end;
+    //
+delimiter ;
+#增加节点存储过程(创建临时表更新不容易成功！)
+drop PROCEDURE  if exists addSubnode;
+delimiter //
+CREATE PROCEDURE addSubnode(start_id int,crwz int, rname varchar(50) CHARSET utf8)
+begin
+  DECLARE vrgt,vlft,vlevel,t_error int DEFAULT 0;
+  DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1; 
+	select lft,rgt,CountLayer(bid) into vlft,vrgt,vlevel from nav_bar where bid=start_id;
+    tscrwz :begin
+    drop table if exists _temp_uplft;
+drop table if exists _temp_uprgt;
+    CREATE TEMPORARY TABLE _temp_uplft (bid int(11),primary key(bid)   );
+	CREATE TEMPORARY TABLE _temp_uprgt (bid int(11),primary key(bid)   );
+    if vlft<1 or vrgt<2 then leave tscrwz;set t_error=1; end if;
+    #在位置1插入也就是起始节点左边加一
+    if crwz<=1  then
+		START TRANSACTION;    
+		insert into _temp_uplft(bid) select bid from nav_bar where lft>vlft;
+		insert into _temp_uprgt(bid) select bid from nav_bar where rgt>vlft;
+		update nav_bar, _temp_uplft set nav_bar.lft=nav_bar.lft+2 where nav_bar.bid=_temp_uplft.bid;
+		update nav_bar, _temp_uprgt set nav_bar.rgt=nav_bar.rgt+2 where nav_bar.bid=_temp_uprgt.bid;
+        insert into nav_bar(lft,rgt,rname) value(vlft+1,vlft+2,rname);
+    end if;
+		IF t_error = 1 THEN 
+            ROLLBACK;    
+        ELSE 
+            COMMIT;    
+        END IF;
+    end tscrwz;
+		select t_error;
+end
+    //
+delimiter ;
+//#选出父类下的直接子类并编号
+select * from (SELECT (@i:=@i+1) i,bid,lft,rgt,rname FROM (SELECT @i:=0) as bianh ,nav_bar where lft>2 and rgt<11 and CountLayer(bid)=3) as rz ;
+//查询结果集添加序号
+SELECT (@i:=@i+1) i,bid,rname,CountLayer(bid) level FROM nav_bar, (SELECT @i:=0) as i where lft>2 and rgt<11 ;
+
+SELECT (@rownum := @rownum+1) AS rownum, aa.bid,aa.rname from (select bid,lft,rgt,rname,CountLayer(bid) level from nav_bar) as aa,(SELECT @rownum:=0) as y where aa.lft>=2 and aa.rgt<=11
+//查询结果集添加序号的某一列
+select * from (SELECT (@i:=@i+1) i,bid,lft,rgt,rname,CountLayer(bid) lvl FROM nav_bar, (SELECT @i:=0) as i where lft>2 and rgt<11) m where m.i=2 ;
+//查询子类及所在层级
+select n.bid,n.lft,n.rgt,n.rname,CountLayer(n.bid) from nav_bar n where Lft >= 2 and rgt<=11 order by Lft asc
+//左右无限分类计算层数
+dorp FUNCTION CountLayer if exists
+delimiter //
+CREATE FUNCTION CountLayer(type_id int)
+RETURNS int
+begin
+    declare result int default 0 ;
+    declare lft int;
+    declare rgt int;
+    begin
+        select nav.lft,nav.rgt into lft,rgt from nav_bar nav where nav.bid=type_id ;
+       set result= (select count(nav.bid) from nav_bar nav where nav.lft <= lft and nav.rgt >= rgt);
+    end ;
+    return result;
+end
+    //
+delimiter ;
+//视图 导航栏字段包含 层数
+drop VIEW if exists v_nodebar
+CREATE VIEW v_nodebar as
+select n.bid,n.pid,n.rname,CountLayer(n.bid) level from nav_bar n order by n.lft
+//查询所有父类
+SELECT * FROM bingge.nav_bar nav where nav.lft<=16 and nav.rgt>=17;
+//查询单一父类
+SELECT * FROM bingge.nav_bar nav where nav.lft<7 and nav.rgt>8  order by lft desc limit 0,1 
+//查询所有子类（包括当前节点）
+select * from nav_bar where Lft >= 1 and rgt<=22 order by Lft asc
+//查询所有子类
+SELECT * FROM bingge.nav_bar nav where nav.lft>=3 and nav.rgt<=6;
+//查询包含的子类个数
+SELECT node.*, (node.rgt - node.lft-1)/2 subnode FROM nav_bar node WHERE node.bid=1
+//#增加节点--存储过程 call addSubnode(3,'太太')
+#增加节点存储过程
+drop PROCEDURE  if exists addSubnode;
+delimiter //
+CREATE PROCEDURE addSubnode(type_id int, rname varchar(50) CHARSET utf8)
+begin
+  declare t_error,rgt int DEFAULT 0;  
+	DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1; 
+    if (select count(nav.bid) from nav_bar nav where nav.bid=type_id)=1 then
+         SET SQL_SAFE_UPDATES = 0;
+        START TRANSACTION;    
+        set rgt =(select nav.rgt from nav_bar nav where nav.bid=type_id) ;
+         update nav_bar nav set nav.rgt=nav.rgt+2 where nav.rgt>=rgt; 
+		 update nav_bar nav set nav.lft=nav.lft+2 where nav.lft>=rgt;
+         
+		insert into nav_bar(rname,lft,rgt) values (rname,rgt,rgt+1);
+          IF t_error = 1 THEN    
+            ROLLBACK;    
+        ELSE    
+            COMMIT;    
+        END IF;
+    end if;
+    SET SQL_SAFE_UPDATES = 1;
+end
+    //
+delimiter ;
+//删除节点--存储过程
+//DELETE FROM nav_bar  where bid in (select bid from(SELECT bid FROM bingge.nav_bar nav where nav.lft>=vlft and nav.rgt<=vrgt) as temtable)  ;
+	drop PROCEDURE  if exists delSubnode;
+	delimiter //
+	CREATE PROCEDURE delSubnode(type_id int)
+	begin
+	  declare t_error,vrgt,vlft int DEFAULT 0;  
+		DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1; 
+	    if (select count(nav.bid) from nav_bar nav where nav.bid=type_id)=1 then
+		 SET SQL_SAFE_UPDATES = 0;
+		START TRANSACTION;    
+	       select nav.rgt,nav.lft into vrgt,vlft from nav_bar nav where nav.bid=type_id;
+
+	DELETE FROM nav_bar  where lft>=vlft and rgt<=vrgt ;
+	update nav_bar set rgt=rgt-(vrgt+1-vlft) where rgt>vrgt; 
+	update nav_bar set lft=lft-(vrgt+1-vlft) where lft>vlft;	
+			IF t_error = 1 THEN    
+		    ROLLBACK;    
+		ELSE    
+		    COMMIT;    
+		END IF;
+	    end if;
+	    SET SQL_SAFE_UPDATES = 1;
+	end
+	    //
+	delimiter ;
+// call addSubnode(2,'维修');call addSubnode(3,'租凭');call addSubnode(2,'二手车');call addSubnode(2,'发动机');call addSubnode(3,'轿车');call addSubnode(2,'轮胎');
+******************************************
+#增加节点存储过程
+drop PROCEDURE  if exists addSubnode;
+delimiter //
+CREATE PROCEDURE addSubnode(type_id int,crwz int, rname varchar(50) CHARSET utf8)
+begin
+  DECLARE t_error,vrgt,vlft,l_done,tlft,trgt,crwz1 int DEFAULT 0;
+declare cur1 CURSOR FOR SELECT flag from bmlx;
+DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1;
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET l_done=1;
+select nav.lft,nav.rgt into vlft,vrgt from nav_bar nav where nav.bid=type_id;
+#插入的节点的左边值大于1证明有节点
+    if vlft>=1 then
+         SET SQL_SAFE_UPDATES = 0;
+        START TRANSACTION;
+  OPEN 	 cur1;
+        while l_done <> 1 do  
+SELECT n.lft,n.rgt FROM (select nav.lft,nav.rgt from nav_bar nav where nav.bid=3) ruut,nav_bar n  where n.lft>ruut.lft and n.rgt<ruut.rgt order by n.lft;
+                            fetch  cur1 into tlft,trgt;
+                            if tlft= trgt-1 then
+								set crwz1=crwz1+1;
+                            end if;
+						if crwz=crwz1 then
+                        set l_done=1;
+                            update nav_bar nav set nav.rgt=nav.rgt+2 where nav.rgt>=trgt; 
+							update nav_bar nav set nav.lft=nav.lft+2 where nav.lft>=trgt;
+							insert into nav_bar(rname,lft,rgt) values (rname,trgt,trgt+1);
+						end if;
+		end while;
+        CLOSE cur1;
+          IF t_error = 1 THEN    
+            ROLLBACK;    
+        ELSE    
+            COMMIT;    
+        END IF;
+    end if;
+    SET SQL_SAFE_UPDATES = 1;
+end
+    //
+delimiter ;
+_________________________________________________
+#上下移动不成功
+drop PROCEDURE  if exists updwNode;
+delimiter //
+CREATE PROCEDURE updwNode(ysid int,mbid int)
+begin
+  DECLARE vrgt,vlft,t_error,vslft,vsrgt,vslevel,vlevel int DEFAULT 0;
+  DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1;
+  select lft,rgt,CountLayer(ysid) into vlft,vrgt,vlevel from nav_bar where bid=ysid;
+  select lft,rgt ,CountLayer(mbid) into vslft,vsrgt,vslevel from nav_bar where bid=mbid;
+tscrwz :begin
+   if vlft<1 or vslft<1 or vrgt<vlft or vsrgt<vslft then leave tscrwz; end if;
+	if vlft>vslft and vrgt<vsrgt and abs(vslevel-vlevel)=1 then leave tscrwz; end if;
+	if vlft<vslft and vrgt>vsrgt and abs(vslevel-vlevel)=1 then leave tscrwz; end if ; 
+	drop table if exists _temp_updwnode;
+	CREATE TEMPORARY TABLE _temp_updwnode (bid int(11),primary key(bid));
+    SET SQL_SAFE_UPDATES = 0;
+	START TRANSACTION;
+    insert into _temp_updwnode(bid) select bid from nav_bar where lft>=vlft and rgt<=vrgt;
+    #向上移动1、目标节点扩容2、跨越节点下移、3跨越父节点缩小4、原始节点节点缩小
+    if vlft>vslft  then
+		update nav_bar set rgt=rgt+(vrgt-vlft+1) where bid=mbid;
+		update nav_bar set lft=lft+(vrgt-vlft+1), rgt=rgt+(vrgt-vlft+1) where lft>vsrgt and rgt<vlft;
+        update nav_bar set lft=lft+(vrgt-vlft+1) where lft<vlft and rgt>vrgt and lft>vsrgt;
+        update nav_bar set lft=lft-(vlft-vsrgt),rgt=rgt-(vlft-vsrgt) where bid in (select bid from _temp_updwnode);
+    select vlft;
+    end if;
+		IF t_error = 1 THEN 
+            ROLLBACK;
+        ELSE 
+            COMMIT;    
+        END IF;
+    end tscrwz;
+end;
+    //
+delimiter ;
+
