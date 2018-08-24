@@ -23,6 +23,7 @@ public abstract class BaseEntity implements Serializable {
 	protected int stater;
 
 	@Length(min = 3, max = 32, message = "长度必须介于 3 和 32 之间")
+	@Column(name="remark")
 	protected String remark;
 
 	@Length(min = 5, max = 32, message = "长度必须介于 5 和 32 之间")
@@ -77,8 +78,6 @@ public abstract class BaseEntity implements Serializable {
 
 	@Override
 	public String toString() {
-
 		return ToStringBuilder.reflectionToString(this);
-
 	}
 }

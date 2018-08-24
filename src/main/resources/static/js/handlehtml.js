@@ -16,7 +16,6 @@ function handlemessage(message) {
 	var mess = JSON.parse(message.body);
 	tongzhi =mess ;
 	var count = Object.keys(mess).length;
-	// var source= $("#myList").html();
 	var source = $("#msgList").html();
 	var template = Handlebars.compile(source);
 	// for(m in mess){

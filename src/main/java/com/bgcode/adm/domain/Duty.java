@@ -6,6 +6,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.Past;
 
 import org.hibernate.validator.constraints.Email;
@@ -26,13 +27,17 @@ public class Duty extends BaseEntity {
 	private String photo;
 	@Column(name="login_ip")
 	private String loginip;
-	@Length(min = 3, max = 32, message = "长度必须介于 3 和 32 之间")
+	@Length(min = 3, max = 100, message = "密码长度必须介于 3 和 100 之间")
 	private String password;
 	@Past
 	@Column(name="create_date")
 	private Date createdate;
 	@Email
 	private String email;
+	@Digits(fraction = 0, integer = 2147483640)
+	@Column(name="accountnonlocked")
+	private int accountnonlocked;
+
 	public Duty(){
 	}
 	
@@ -101,5 +106,7 @@ public class Duty extends BaseEntity {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-
+	public void setAccountnonlocked(int accountnonlocked) {
+		this.accountnonlocked = accountnonlocked;
+	}
 }

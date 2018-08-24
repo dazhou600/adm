@@ -1,132 +1,21 @@
-/* GLOBAL STYLES
+/* 全局样式
 -------------------------------------------------- */
-/* Padding below the footer and lighter body text */
-
-body {
-  padding-bottom: 40px;
-  color: #5a5a5a;
-}
+html, body { /*非常重要的样式让背景图片100%适应整个屏幕*/  
+background:#fff;
+width:100%;height:100%;
+} 
 
 
-/* CUSTOMIZE THE NAVBAR
+.navbar-fixed-top{background-color: #eff2fe;color:black;}
+.navbar-nav > li > a,.navbar-brand {font-size: 1.3em;color:black;} /*--导航字体扩大--*/
+button.navbar-toggle {background-color:#babdb6;}/*整个背景都是transparent透明的，会看不到，所以再次覆盖一下*/  
+button.navbar-toggle > span.icon-bar {background-color:#2e3436;}
+.navbar-fixed-top .navbar-toggle:hover,
+.navbar-fixed-top .navbar-toggle:focus {
+  background-color: #ddd;/*--切换键鼠标悬空背景色变换--*/
+} 
+/* 产品介绍
 -------------------------------------------------- */
-
-/* Special class on .container surrounding .navbar, used for positioning it into place. */
-.navbar-wrapper {
-  position: absolute;
-  margin-top: 70px;
-  top: 0;
-  right: 0;
-  left: 0;
-  z-index: 20;
-}
-
-/* Flip around the padding for proper display in narrow viewports */
-.navbar-wrapper > .container {
-  padding-right: 0;
-  padding-left: 0;
-}
-.navbar-wrapper .navbar {
-  padding-right: 15px;
-  padding-left: 15px;
-}
-.navbar-wrapper .navbar .container {
-  width: auto;
-}
-
-
-/* CUSTOMIZE THE CAROUSEL
--------------------------------------------------- */
-
-/* Carousel base class */
-.carousel {
-  height: 500px;
-  margin-bottom: 60px;
-}
-/* Since positioning the image, we need to help out the caption */
-.carousel-caption {
-  z-index: 10;
-}
-
-/* Declare heights because of positioning of img element */
-.carousel .item {
-  height: 500px;
-  background-color: #777;
-}
-.carousel-inner > .item > img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  min-width: 100%;
-  height: 500px;
-}
-
-
-/* MARKETING CONTENT
--------------------------------------------------- */
-
-/* Center align the text within the three columns below the carousel */
-.marketing .col-lg-4 {
-  margin-bottom: 20px;
-  text-align: center;
-}
-.marketing h2 {
-  font-weight: normal;
-}
-.marketing .col-lg-4 p {
-  margin-right: 10px;
-  margin-left: 10px;
-}
-
-
-/* Featurettes
-------------------------- */
-
-.featurette-divider {
-  margin: 80px 0; /* Space out the Bootstrap <hr> more */
-}
-
-/* Thin out the marketing headings */
-.featurette-heading {
-  font-weight: 300;
-  line-height: 1;
-  letter-spacing: -1px;
-}
-
-
-
-/* 自定义 CSS
--------------------------------------------------- */
-h1,h2,h3,h4,h5,h6{
-    margin: 0;
-}
-
-.navbar-default {
-    margin: 0;
-    border: none;
-    background-color: #ccc;
-    color: #fff;
-}
-
-.nav-top{
-padding: 0px;
-
-}
-
-/*--背景大图轮播--*/
-
-
-.carousel .item {
-	color: #fff;
-    height: 200px;
-	 background-color: rgba(46, 31, 33, 0.71);	
-}
-
-.bgcovery {
-	background-color: rgba(46, 31, 33, 0.71);	
-	} 
-/*--背景大图轮播结束--*/
-
 .summary{
     padding: 15px 0px;
     background: url(/imgs/slid.jpg) fixed;
@@ -138,48 +27,28 @@ padding: 0px;
 }
 
 
-/*--products--*/
+/* 主页大图
+-------------------------------------------------- */
 .products {  
-   background: url(/imgs/car.jpg) no-repeat 100%;
+   background: url(/imgs/audi.jpg) no-repeat 100%;
   	background-size: cover;
-	min-height:590px;
+	min-height:460px;
 	position:relative;
 	-webkit-background-size: cover;
-	-o-background-size: cover;F
+	-o-background-size: cover;
 	-moz-background-size: cover;
 	-ms-background-size: cover;
+	margin-top: 50px;
+	max-width: 100%;
 }
-
-.products-text {
-    width: 30%;	
+#Sales-strategy{
+	margin-top :180px;
 }
-.products-text h2 {
-    font-size: 14px;
-    color: #fff;
-}
-.products-text p {
-    font-size: 12px;
-    color: #D6E2DF;
-    margin: 1em 0;
-    letter-spacing: 1px;
-}
-a.more {
-    font-size: 1.1em;
-    color: #fff;
-    background-color: #01553D;
-    padding: 0.3em 1em;
-    line-height: 38px;
-}
-a.more:hover {
-    background-color: #fff;
-    color: #01553D;
-}
-
-/*--groups--*/
+/*  团队介绍
+-------------------------------------------------- */
 .groups {
   position: relative;
 }
-
 
 .groups a {
 	overflow: hidden;
@@ -216,8 +85,10 @@ a.more:hover {
 .Covery p {
     margin-top: 5px;
 }
+/*--团队介绍结束--*/
 
-/*--底部--*/
+/*  底部
+-------------------------------------------------- */
 .footer {
 	margin-top: 70px;
     text-align: center;
@@ -237,44 +108,16 @@ a.more:hover {
 }
 /*--底部结束--*/
 
+
 /* RESPONSIVE CSS
 -------------------------------------------------- */
 
-
-@media screen and (max-width: 468px){
-  .products{
-   min-height: 252px;
-    }
-}
-
-@media screen and (max-width: 700px){
+/* 小屏幕(平板)（小于等于 768px） */
+@media screen and (max-width: 768px){
   .products {
-   min-height: 340px;
+   min-height: 200px;
     }
+   #Sales-strategy{
+   margin-top: 30px;
+   }
 }
-
-@media screen and (max-width: 1260px){
-  .products {
-   min-height: 542px;
-    }
-}
-
-@media screen and (max-width: 960px){
-  .products {
-   min-height: 442px;
-    }
-        .navbar-right>p>a{
-		display: none;    
-    }
-}
-
-
-@media screen and (max-width: 1380px){
-	.products {
-    background-position: -191px 0px;
- }
-}
-
-
-
-

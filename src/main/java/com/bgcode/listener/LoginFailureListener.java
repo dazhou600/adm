@@ -28,7 +28,7 @@ public class LoginFailureListener {
 
 	@EventListener
 	public void listenUserRegisterEvent(AuthenticationFailureBadCredentialsEvent event) {
-		if (event.getAuthentication().getPrincipal() != null) {
+		if (event.getAuthentication().getPrincipal() != null&&!org.springframework.security.core.userdetails.UsernameNotFoundException.class.isInstance(event.getException())) {
 			int failsCount = (int) request.getSession().getAttribute("failsCount") + 1;
 			request.getSession().setAttribute("failsCount", failsCount);
 			if (1 == failsCount) {

@@ -69,8 +69,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 						});
 		if (users.size() == 0) {
-			throw new UsernameNotFoundException(this.messages.getMessage("JdbcDaoImpl.noAuthority",
-					new Object[] { userName }, "User {0} has no GrantedAuthority"));
+			throw new UsernameNotFoundException("用户 "+userName+" 不存在");
 		}
 
 		UserInfo user = users.get(0); // contains no GrantedAuthority[]

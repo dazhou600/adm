@@ -20,7 +20,7 @@ public class JpaUserRepositoryTest {
 	@Autowired
 	UserRepository repository;
 
-	//@Test
+	@Test
 	public void findall() {
 		Iterable<Duty> it =  repository.findAll();
 		int count = 0 ;
@@ -52,7 +52,7 @@ public class JpaUserRepositoryTest {
 	@Test
 	public void DeleteUser(){
 	//	try{
-		repository.delete("33");
+//		repository.delete("33");
 //		}catch(Exception e){
 //			System.out.println("***************************"+e);
 //

@@ -4,9 +4,11 @@ import java.util.List;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,16 +18,21 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.bgcode.adm.dao.UserRepository;
 import com.bgcode.adm.domain.Duty;
+import com.bgcode.adm.service.RegisterException;
+import com.bgcode.adm.service.SuserService;
 
 @Controller
 public class AdminController {
 	@Autowired
 	private UserRepository userRepo;
+	@Autowired
+	private SuserService uservice;
 
 	@RequestMapping(value = "/admin/index", method = RequestMethod.GET)
 	public String home(HttpServletRequest request) {
-		//request.setAttribute("includePath", "/admin/business/home");
-		//ModelAndView modelAndView = new ModelAndView("/admin/business/index");
+		// request.setAttribute("includePath", "/admin/business/home");
+		// ModelAndView modelAndView = new
+		// ModelAndView("/admin/business/index");
 		return "/admin/business/index";
 	}
 
@@ -37,20 +44,30 @@ public class AdminController {
 		return modelAndView;
 	}
 
-	
-	
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
-	public String processRegist(@Valid Duty user,Errors errors) {
-		if(errors.hasErrors()){
-			return "login_reg" ;
+	public String processRegist(@Valid Duty user, Errors errors,HttpServletRequest request,HttpServletResponse resp) {
+		if (errors.hasErrors()) {
+			return "login_reg";
 		}
-		userRepo.save(user);
+		// userRepo.save(user);
+		user.setLoginip(request.getRemoteAddr());
+		try{
+		uservice.regst(user);
+		}catch (RegisterException e){
+			//request.getSession().setAttribute("rmsg", "用户名已经存在!");
+			
+			//request.getSession().setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION,e);
+			request.setAttribute("rmsg", "用户名已经存在!");
+			//request.getSession().setAttribute("rmsg","用户名已经存在!");
+			return "login_reg";
+		}
 		return "redirect:/index";
 	}
-	
+
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String login(HttpServletRequest request) {
-		//System.out.println("***********" + request.getRequestURL() + "******************");
+		// System.out.println("***********" + request.getRequestURL() +
+		// "******************");
 		return "login_reg";
 	}
 
