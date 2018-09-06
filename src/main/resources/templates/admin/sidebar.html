@@ -36,11 +36,11 @@
 						<li><a href="/admin/email"><i class="fa fa-circle-o"></i>邮件</a></li>
 					</ul></li>
 				<li class="treeview"  sec:authorize="hasRole('ROLE_WZGL')"><a href="#"><i class="fa fa-link"></i>
-						<span>文章管理</span> <span class="pull-right-container"> <i
+						<span>页面管理</span> <span class="pull-right-container"> <i
 							class="fa fa-angle-left pull-right"></i>
 					</span> </a>
 					<ul class="treeview-menu" sec:authorize="hasPermission('/admin/Article','read')">
-						<li><a href="/admin/Article">文章列表</a></li>
+						<li><a href="/admin/Article">首页管理</a></li>
 					</ul></li>
 				<li class="treeview"><a href="#"><i class="fa fa-users"></i>
 						<span>权限及用户</span> <span class="pull-right-container"> <i
