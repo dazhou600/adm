@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<link rel="stylesheet" href="/css/zTreeStyle/zTreeStyle.css" type="text/css"></link>
+<body>
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h1>管理员 面板</h1>
+		<ol class="breadcrumb">
+			<li><a href="#"><i class="fa fa-dashboard"></i> 主页导航管理</a></li>
+		</ol>
+	</section>
+
+	<!-- 内容主体 -->
+	<section class="content">
+<h6>[ 文件路径: core/async_fun.html ]</h6>
+	<div class="content_wrap">
+		<div class="zTreeDemoBackground left">
+			<ul id="navtree" class="ztree"></ul>
+		</div>
+</div>
+	</section>
+	<!-- /.content -->
+<script type="text/javascript" src="/js/jquery.ztree.core.js"></script>
+<script src="/js/levelToNestArray.js"></script>
+<SCRIPT type="text/javascript">
+		var setting = {};
+		function onAsyncSuccess(event, treeId, treeNode, msg) {
+			console.log("节点： "+treeNode+"消息： "+msg);
+		}
+</SCRIPT>
+<script th:inline="javascript">
+$(document).ready(function(){ 
+	var navtree = getNavAsNestArray([[${#httpServletRequest.getAttribute('navbars')}]]);
+	console.log("节点： "+navtree);
+	$.fn.zTree.init($("#navtree"), setting, navtree);
+});
+</script>
+</body>
+</html>
