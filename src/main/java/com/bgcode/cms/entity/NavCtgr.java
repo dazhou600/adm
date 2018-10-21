@@ -40,6 +40,12 @@ public class NavCtgr  {
 	public NavCtgr() {
 		super();
 	}
+	
+	public NavCtgr(int bid,String name) {
+		super();
+		this.rname=name;
+		this.bid = bid;
+	}
 	public NavCtgr(int bid,String name, String href, int level,int lft,int rgt) {
 		super();
 		this.rname=name;

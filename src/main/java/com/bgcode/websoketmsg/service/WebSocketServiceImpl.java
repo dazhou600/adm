@@ -52,7 +52,7 @@ public class WebSocketServiceImpl implements WebSocketService {
 		System.out.println("***********");
 		if (matcher.find()) {
 			String username = matcher.group(1);
-			System.out.println("******" + username);
+			//System.out.println("******" + username);
 			messaging.convertAndSendToUser(username, "/queue/notifications",
 					new Notification("n你被提到!：" +principal.getName() ));
 		}

@@ -19,6 +19,124 @@
 		<!-- 内容 -->
 		<div th:fragment="contente" class="content-wrapper">
 		<div th:include="${#httpServletRequest.getAttribute('includePath')}"></div>
+		<section class="content-header">
+				<h1>管理员 面板</h1>
+				<ol class="breadcrumb">
+					<li><a href="#"><i class="fa fa-dashboard"></i> 首页</a></li>
+				</ol>
+			</section>
+		  <!--图表演示！-->	
+			<section class="content">
+			<div class="row">
+				<div class="col-md-3 col-sm-6 col-xs-12">
+					<div class="info-box">
+						<span class="info-box-icon bg-aqua"><i
+							class="ion ion-ios-gear-outline"></i></span>
+
+						<div class="info-box-content">
+							<span class="info-box-text">服务器负载</span> <span
+								class="info-box-number">90<small>%</small></span>
+						</div>
+						<!-- /.info-box-content -->
+					</div>
+					<!-- /.info-box -->
+				</div>
+				<!-- /.col -->
+				<div class="col-md-3 col-sm-6 col-xs-12">
+					<div class="info-box">
+						<span class="info-box-icon bg-red"><i
+							class="fa fa-google-plus"></i></span>
+
+						<div class="info-box-content">
+							<span class="info-box-text">关注</span> <span
+								class="info-box-number">41,410</span>
+						</div>
+						<!-- /.info-box-content -->
+					</div>
+					<!-- /.info-box -->
+				</div>
+				<!-- /.col -->
+
+				<!-- fix for small devices only -->
+				<div class="clearfix visible-sm-block"></div>
+
+				<div class="col-md-3 col-sm-6 col-xs-12">
+					<div class="info-box">
+						<span class="info-box-icon bg-green"><i
+							class="ion ion-ios-cart-outline"></i></span>
+
+						<div class="info-box-content">
+							<span class="info-box-text">在线人数</span> <span
+								class="info-box-number">760</span>
+						</div>
+						<!-- /.info-box-content -->
+					</div>
+					<!-- /.info-box -->
+				</div>
+				<!-- /.col -->
+				<div class="col-md-3 col-sm-6 col-xs-12">
+					<div class="info-box">
+						<span class="info-box-icon bg-yellow"><i
+							class="ion ion-ios-people-outline"></i></span>
+
+						<div class="info-box-content">
+							<span class="info-box-text">新会员</span> <span
+								class="info-box-number">2,000</span>
+						</div>
+						<!-- /.info-box-content -->
+					</div>
+					<!-- /.info-box -->
+				</div>
+				<!-- /.col -->
+			</div>
+		<div class="row">
+		<div class="col-md-6">
+          <!-- LINE CHART 图表演示！-->
+          <div class="box box-info">
+            <div class="box-header with-border">
+              <h3 class="box-title">Line Chart</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+              </div>
+            </div>
+            <div class="box-body">
+              <div class="chart">
+                <canvas id="lineChart" style="height:250px"></canvas>
+              </div>
+            </div>
+            <!-- /.box-body -->
+          </div>
+          <!-- /.box -->
+
+         
+
+        </div>
+<div class="col-md-6">
+ <!-- BAR CHART -->
+          <div class="box box-success">
+            <div class="box-header with-border">
+              <h3 class="box-title">Bar Chart</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+              </div>
+            </div>
+            <div class="box-body">
+              <div class="chart">
+                <canvas id="barChart" style="height:250px"></canvas>
+              </div>
+            </div>
+            <!-- /.box-body -->
+          </div>
+          <!-- /.box -->        
+        </div>
+		</div>
+		</section>
 		</div>
 		<!-- 版权信息 -->
 		<footer th:replace="/admin/footer"></footer>

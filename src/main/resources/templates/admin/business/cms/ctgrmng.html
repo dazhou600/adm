@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<link rel="stylesheet" href="/css/zTreeStyle/zTreeStyle.css" type="text/css"></link>
+<link rel="stylesheet" href="/css/zTreeStyle/zTreeStyle.css"
+	type="text/css"></link>
+<link rel="stylesheet" href="/css/zTreeStyle/demo.css" type="text/css"></link>
 <body>
 	<!-- Content Header (Page header) -->
 	<section class="content-header">
@@ -12,28 +14,102 @@
 
 	<!-- 内容主体 -->
 	<section class="content">
-<h6>[ 文件路径: core/async_fun.html ]</h6>
-	<div class="content_wrap">
-		<div class="zTreeDemoBackground left">
-			<ul id="navtree" class="ztree"></ul>
+		<h6>[ 文件路径: core/async_fun.html ]</h6>
+		<div class="content_wrap">
+			<div class="zTreeDemoBackground left">
+				<ul id="navtree" class="ztree"></ul>
+			</div>
 		</div>
-</div>
 	</section>
 	<!-- /.content -->
-<script type="text/javascript" src="/js/jquery.ztree.core.js"></script>
-<script src="/js/levelToNestArray.js"></script>
-<SCRIPT type="text/javascript">
-		var setting = {};
-		function onAsyncSuccess(event, treeId, treeNode, msg) {
-			console.log("节点： "+treeNode+"消息： "+msg);
+	<!--模态框开始 -->
+	<div class="modal fade" id="modal-default">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Default Modal</h4>
+				</div>
+				<div class="modal-body">
+					<form class="form-horizontal">
+						<div class="box-body">
+							<div class="form-group">
+								<label for="inputEmail3" class="col-sm-2 control-label">名称:</label>
+
+								<div class="col-sm-10">
+									<input type="test" class="form-control" id="inputrname"
+										placeholder="导航名称" />
+								</div>
+							</div>
+						</div>
+						<p id="addInfo" class="text-info text-right"></p>
+						<!-- /.box-body -->
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default pull-left"
+								data-dismiss="modal">关闭</button>
+							<button id="addSubmit" type="button" class="btn btn-primary"
+								data-dismiss="modal">增加</button>
+						</div>
+					</form>
+					<p class="text-danger text-right">请在上面选择增加的位置(如果父类有多个节点的话)</p>
+				</div>
+
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<!--模态框结束 -->
+	<script type="text/javascript" src="/js/jquery.ztree.core.js"></script>
+	<script type="text/javascript" src="/js/jquery.ztree.exedit.min.js"></script>
+	<script src="/js/levelToNestArray.js"></script>
+	<script src="/js/ctgrmng.js"></script>
+	<!--<script th:inline="javascript">-->
+	<script>
+		var setting = {
+			view : {
+				addHoverDom : addHoverDom,//用于当鼠标移动到节点上时，显示用户自定义控件，显示隐藏状态同 zTree 内部的编辑、删除按钮
+				removeHoverDom : removeHoverDom,
+				selectedMulti : false
+			// 禁止多点同时选中的功能	
+			},
+			edit : {
+				enable : true,//设置 zTree 进入编辑状态
+				editNameSelectAll : true
+			},
+			callback : {
+				beforeDrag : beforeDrag,
+				beforeEditName : beforeEditName,
+				beforeRemove : beforeRemove,
+				beforeRename : beforeRename,//用于捕获节点编辑名称结束（Input 失去焦点 或 按下 Enter 键）之后，更新节点名称数据之前的事件回调函数，并且根据返回值确定是否允许更改名称的操作
+			//onRemove: onRemove,
+			//onRename: onRename
+			}
+		};
+		function getIninNavtreeDataByAjax() {
+			$.ajax({
+				async : true,
+				url : '/admin/cms/navctgr/async',
+				type : "get",
+				//dataType : 'string',
+				success : function(data) {
+					var navtree = getNavAsNestArray(data);
+					$.fn.zTree.init($("#navtree"), setting, navtree);
+				},
+				error : function() {
+					alert("失败！");
+				}
+			});
 		}
-</SCRIPT>
-<script th:inline="javascript">
-$(document).ready(function(){ 
-	var navtree = getNavAsNestArray([[${#httpServletRequest.getAttribute('navbars')}]]);
-	console.log("节点： "+navtree);
-	$.fn.zTree.init($("#navtree"), setting, navtree);
-});
-</script>
+		$(document).ready(function() {
+			//var navtree = getNavAsNestArray([[${#httpServletRequest.getAttribute('navbars')}]]);
+			//console.log("节点： "+navtree);
+			//$.fn.zTree.init($("#navtree"), setting, navtree);
+			getIninNavtreeDataByAjax();
+		});
+	</script>
 </body>
 </html>
