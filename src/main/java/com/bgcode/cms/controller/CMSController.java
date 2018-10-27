@@ -36,11 +36,11 @@ public class CMSController {
 	@RequestMapping(value = "/admin/cms/navctgr/async", produces = "application/text;charset=UTF-8")
 	@ResponseBody
 	public String getNavCtgrTreeAsync(HttpServletRequest request) throws JsonProcessingException {
-		System.out.print("******getNavCtgrTree/asyc******");
 		List<NavCtgr> navbars = rep.findNav();
 		ObjectMapper mapper = new ObjectMapper();
 		String njson = mapper.writeValueAsString(navbars);
-		System.out.print(njson);
+		System.out.print("******getNavCtgrTree/asyc******");
+		System.out.print("njson"+njson);
 		return njson;
 	}
 

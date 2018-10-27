@@ -96,8 +96,12 @@
 				type : "get",
 				//dataType : 'string',
 				success : function(data) {
+					if(data.length>2){
 					var navtree = getNavAsNestArray(data);
 					$.fn.zTree.init($("#navtree"), setting, navtree);
+					}else{
+						alert("没有数据！");
+					}
 				},
 				error : function() {
 					alert("失败！");

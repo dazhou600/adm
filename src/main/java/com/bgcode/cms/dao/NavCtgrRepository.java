@@ -11,7 +11,7 @@ import com.bgcode.cms.entity.NavCtgr;
 @Repository
 public interface NavCtgrRepository extends JpaRepository<NavCtgr, Integer>, NavCtgrPrcdu {
 
-	@Query(value = "SELECT bid,rname,href,CountLayer(bid) level,lft,rgt FROM nav_bar where lft<>1 order by lft ", nativeQuery = true)
+	@Query(value = "SELECT bid,rname,href,CountLayer(bid) level,lft,rgt FROM nav_bar  order by lft ", nativeQuery = true)
 	public List<NavCtgr> findNav();
 
 	// @Query(value="call addSubnode(?1,?2,?3)", nativeQuery = true)

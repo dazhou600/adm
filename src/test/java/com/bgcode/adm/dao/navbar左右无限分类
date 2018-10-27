@@ -331,3 +331,25 @@ end;
     //
 delimiter ;
 
+#重新复制一个节点ysid复制节点rname名称到目标节点mbid后边
+CREATE DEFINER=`root`@`localhost` PROCEDURE `recnode`(ysid int,mbid int, rname varchar(50) CHARSET utf8)
+begin
+  declare t_error,rgt int DEFAULT 0;  
+	DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1; 
+    if (select count(nav.bid) from nav_bar nav where nav.bid=mbid)=1 then
+         SET SQL_SAFE_UPDATES = 0;
+        START TRANSACTION;    
+        set rgt =(select nav.rgt from nav_bar nav where nav.bid=mbid) ;
+         update nav_bar nav set nav.rgt=nav.rgt+2 where nav.rgt>=rgt; 
+		 update nav_bar nav set nav.lft=nav.lft+2 where nav.lft>=rgt;
+         
+		insert into nav_bar(bid,rname,lft,rgt) values (ysid,rname,rgt,rgt+1);
+          IF t_error = 1 THEN    
+            ROLLBACK;    
+        ELSE    
+            COMMIT;    
+        END IF;
+    end if;
+    SET SQL_SAFE_UPDATES = 1;
+end
+

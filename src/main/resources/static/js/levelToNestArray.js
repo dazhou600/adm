@@ -1,4 +1,4 @@
-function getNavAsNestArray(navbars){//把左右无限level转成zTree嵌套数组
+ function getNavAsNestArray(navbars){//把左右无限level转成zTree嵌套数组
 	console.log("文本："+navbars);
 	var navs = JSON.parse(navbars);
 	var countnavs =navs.length;
@@ -17,10 +17,11 @@ function getNavAsNestArray(navbars){//把左右无限level转成zTree嵌套数�
 			}
 		}else{
 			outstr = equals(navs[i],outstr,1);
-			outstr = addlabel(navs[i].level-2,outstr,1);
+			outstr = addlabel(navs[i].level-1,outstr,1);
 		}
 	}
 	outstr += "]"
+		console.log("文本："+outstr);
 	var navtree = eval(outstr);
 	return navtree;
 	//console.log(navtree);
