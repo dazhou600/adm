@@ -296,30 +296,32 @@ end
 delimiter ;
 _________________________________________________
 #上下移动不成功
-drop PROCEDURE  if exists updwNode;
-delimiter //
-CREATE PROCEDURE updwNode(ysid int,mbid int)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `up_dw_Node`(ysid int,mbid int)
 begin
   DECLARE vrgt,vlft,t_error,vslft,vsrgt,vslevel,vlevel int DEFAULT 0;
   DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error=1;
   select lft,rgt,CountLayer(ysid) into vlft,vrgt,vlevel from nav_bar where bid=ysid;
   select lft,rgt ,CountLayer(mbid) into vslft,vsrgt,vslevel from nav_bar where bid=mbid;
+    #ysjd_zy_sm原始节点占用数字数目:(vrgt-vlft+1)
 tscrwz :begin
    if vlft<1 or vslft<1 or vrgt<vlft or vsrgt<vslft then leave tscrwz; end if;
 	if vlft>vslft and vrgt<vsrgt and abs(vslevel-vlevel)=1 then leave tscrwz; end if;
 	if vlft<vslft and vrgt>vsrgt and abs(vslevel-vlevel)=1 then leave tscrwz; end if ; 
 	drop table if exists _temp_updwnode;
-	CREATE TEMPORARY TABLE _temp_updwnode (bid int(11),primary key(bid));
+	CREATE TEMPORARY TABLE _temp_updwnode (bid int(11),lft int(11),rgt int(11),primary key(bid));
+	#1、目标节点扩容
+	insert into _temp_updwnode(bid,lft,rgt) values(mbid,vslft,vsrgt+(vrgt-vlft+1));
+    #2、原始节点及其子节点左右值
+    #原始节点与目标节点间隔数字数目(vlft-vsrgt)
+    insert into _temp_updwnode(bid,lft,rgt) select bid,lft-(vlft-vsrgt) ,rgt-(vlft-vsrgt)  from nav_bar where lft>=vlft and rgt<=vrgt;
     SET SQL_SAFE_UPDATES = 0;
 	START TRANSACTION;
-    insert into _temp_updwnode(bid) select bid from nav_bar where lft>=vlft and rgt<=vrgt;
     #向上移动1、目标节点扩容2、跨越节点下移、3跨越父节点缩小4、原始节点节点缩小
     if vlft>vslft  then
+		update nav_bar set lft=lft+(vrgt-vlft+1) where lft>vsrgt and lft<vlft;
+        update nav_bar set rgt=rgt+(vrgt-vlft+1) where rgt>vsrgt and rgt<vlft;
 		update nav_bar set rgt=rgt+(vrgt-vlft+1) where bid=mbid;
-		update nav_bar set lft=lft+(vrgt-vlft+1), rgt=rgt+(vrgt-vlft+1) where lft>vsrgt and rgt<vlft;
-        update nav_bar set lft=lft+(vrgt-vlft+1) where lft<vlft and rgt>vrgt and lft>vsrgt;
-        update nav_bar set lft=lft-(vlft-vsrgt),rgt=rgt-(vlft-vsrgt) where bid in (select bid from _temp_updwnode);
-    select vlft;
+		update nav_bar inner join(select bid,lft,rgt from _temp_updwnode) c on nav_bar.bid = c.bid set nav_bar.lft = c.lft,nav_bar.rgt = c.rgt;    
     end if;
 		IF t_error = 1 THEN 
             ROLLBACK;
@@ -327,9 +329,7 @@ tscrwz :begin
             COMMIT;    
         END IF;
     end tscrwz;
-end;
-    //
-delimiter ;
+end
 
 #重新复制一个节点ysid复制节点rname名称到目标节点mbid后边
 CREATE DEFINER=`root`@`localhost` PROCEDURE `recnode`(ysid int,mbid int, rname varchar(50) CHARSET utf8)
