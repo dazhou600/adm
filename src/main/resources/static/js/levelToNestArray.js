@@ -1,5 +1,5 @@
  function getNavAsNestArray(navbars){//把左右无限level转成zTree嵌套数组
-	console.log("文本："+navbars);
+	//console.log("文本："+navbars);
 	var navs = JSON.parse(navbars);
 	var countnavs =navs.length;
 	var outstr='[';
@@ -21,7 +21,6 @@
 		}
 	}
 	outstr += "]"
-		console.log("文本："+outstr);
 	var navtree = eval(outstr);
 	return navtree;
 	//console.log(navtree);

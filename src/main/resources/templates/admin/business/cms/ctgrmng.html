@@ -22,7 +22,52 @@
 		</div>
 	</section>
 	<!-- /.content -->
-	<!--模态框开始 -->
+	<!--编辑模态框开始 -->
+	<div class="modal fade" id="edit-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">编辑节点</h4>
+				</div>
+				<div class="modal-body">
+					<form class="form-horizontal">
+						<div class="box-body">
+							<div class="form-group">
+								<label class="col-sm-2 control-label">名称:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="editname"
+										placeholder="节点名称" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">url:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="editadrs"
+										placeholder="地址" />
+								</div>
+							</div>
+						</div>
+						<!-- /.box-body -->
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default pull-left"
+								data-dismiss="modal">关闭</button>
+							<button id="editSubmit" type="button" class="btn btn-primary"
+								data-dismiss="modal">修改</button>
+						</div>
+					</form>
+				</div>
+
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<!--编辑模态框结束 -->
+	<!--增加模态框开始 -->
 	<div class="modal fade" id="modal-default">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -31,7 +76,7 @@
 						aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
-					<h4 class="modal-title">Default Modal</h4>
+					<h4 class="modal-title">增加节点</h4>
 				</div>
 				<div class="modal-body">
 					<form class="form-horizontal">
@@ -40,7 +85,7 @@
 								<label for="inputEmail3" class="col-sm-2 control-label">名称:</label>
 
 								<div class="col-sm-10">
-									<input type="test" class="form-control" id="inputrname"
+									<input type="text" class="form-control" id="inputrname"
 										placeholder="导航名称" />
 								</div>
 							</div>
@@ -62,9 +107,10 @@
 		</div>
 		<!-- /.modal-dialog -->
 	</div>
-	<!--模态框结束 -->
+	<!--增加模态框结束 -->
 	<script type="text/javascript" src="/js/jquery.ztree.core.js"></script>
-	<script type="text/javascript" src="/js/jquery.ztree.exedit.min.js"></script>
+	<script type="text/javascript" src="/js/jquery.ztree.exedit.js"></script>
+	<script type="text/javascript" src="/js/jquery.ztree.excheck.js"></script>
 	<script src="/js/levelToNestArray.js"></script>
 	<script src="/js/ctgrmng.js"></script>
 	<!--<script th:inline="javascript">-->
@@ -77,16 +123,19 @@
 			// 禁止多点同时选中的功能	
 			},
 			edit : {
+				drag : {
+					next : false,
+					prev : false,
+				},
 				enable : true,//设置 zTree 进入编辑状态
 				editNameSelectAll : true
+			//节点编辑名称 input 初次显示时,设置 txt 内容是否为全选状态
 			},
 			callback : {
-				beforeDrag : beforeDrag,
 				beforeEditName : beforeEditName,
 				beforeRemove : beforeRemove,
-				beforeRename : beforeRename,//用于捕获节点编辑名称结束（Input 失去焦点 或 按下 Enter 键）之后，更新节点名称数据之前的事件回调函数，并且根据返回值确定是否允许更改名称的操作
-			//onRemove: onRemove,
-			//onRename: onRename
+				beforeDrag : zTreeBeforeDrag,//如果返回 false，zTree 将终止拖拽，也无法触发 onDrag / beforeDrop / onDrop 事件回调函数
+				beforeDrop : beforeDrop
 			}
 		};
 		function getIninNavtreeDataByAjax() {
@@ -96,10 +145,10 @@
 				type : "get",
 				//dataType : 'string',
 				success : function(data) {
-					if(data.length>2){
-					var navtree = getNavAsNestArray(data);
-					$.fn.zTree.init($("#navtree"), setting, navtree);
-					}else{
+					if (data.length > 2) {
+						var navtree = getNavAsNestArray(data);
+						$.fn.zTree.init($("#navtree"), setting, navtree);
+					} else {
 						alert("没有数据！");
 					}
 				},

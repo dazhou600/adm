@@ -39,14 +39,15 @@ public class CMSController {
 		List<NavCtgr> navbars = rep.findNav();
 		ObjectMapper mapper = new ObjectMapper();
 		String njson = mapper.writeValueAsString(navbars);
-		System.out.print("******getNavCtgrTree/asyc******");
-		System.out.print("njson"+njson);
+		//System.out.print("******getNavCtgrTree/asyc******");
+		//System.out.print("njson"+njson);
 		return njson;
 	}
 
 	@RequestMapping(value = "/admin/cms/navctgr/add/{pid}", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String addNavCtgr(HttpServletRequest request, @PathVariable String pid) throws JsonProcessingException {
+		System.out.print("************"+pid);
 		String prm[] = pid.split(",");
 		Integer cpid = Integer.parseInt(prm[0]);
 		Integer pos = Integer.parseInt(prm[1]);
@@ -73,5 +74,37 @@ public class CMSController {
 		ObjectMapper mapper = new ObjectMapper();
 		String m = mapper.writeValueAsString(map);
 		return m;// 必须返回绑定json对象,否则前台不返回调seccess函数!
+	}
+	@RequestMapping(value = "/admin/cms/navctgr/mov/{bid}/{tbid}", produces = "application/json;charset=UTF-8")
+	@ResponseBody // 光它不返回信息还要JSON
+	public String movNavCtgr(HttpServletRequest request, @PathVariable String bid,@PathVariable String tbid) throws JsonProcessingException {
+		Integer cbid = Integer.parseInt(bid);
+		Integer tgtbid = Integer.parseInt(tbid);
+		int msg = rep.movNav(cbid,tgtbid);
+		System.out.println("******delNavCtgr******" + msg);
+		Map<String, Object> map = new HashMap<String, Object>();
+		//map.put("msg", msg == 666 ? "移动成功了" : "移动失败呵");
+		map.put("msg", msg );
+		System.out.println("******delNavCtgr******" + msg);
+		ObjectMapper mapper = new ObjectMapper();
+		String m = mapper.writeValueAsString(map);
+		return m;
+	}
+	@RequestMapping(value = "/admin/cms/navctgr/edit/{inf}", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String editNavCtgr(HttpServletRequest request, @PathVariable String inf) throws JsonProcessingException {
+		System.out.print("************"+inf);
+		String prm[] = inf.split(",");
+		Integer cpid = Integer.parseInt(prm[0]);
+		String rname = prm[1];
+		String addrs = prm[2];
+		int msg = rep.updateNav(rname,addrs,cpid);
+		System.out.print(cpid + rname +addrs+"--"+msg);
+		Map<String, Object> map = new HashMap<String, Object>();
+		//map.put("msg", msg == 666 ? "增加成功！" : "增加失败！");
+		map.put("msg", msg );
+		ObjectMapper mapper = new ObjectMapper();
+		String m = mapper.writeValueAsString(map);
+		return m;
 	}
 }

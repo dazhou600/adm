@@ -37,4 +37,16 @@ public class NavCtgrRepositoryImpl implements NavCtgrPrcdu{
 		return (int) query.getOutputParameterValue("errnb");
 	}
 
+	@Override
+	public int movNav(int pid, int tid) {
+		StoredProcedureQuery query = em.createStoredProcedureQuery("up_dw_Node");
+		query.registerStoredProcedureParameter("ysid", Integer.class, ParameterMode.IN);
+		query.registerStoredProcedureParameter("mbid", Integer.class, ParameterMode.IN);
+		query.registerStoredProcedureParameter("msg", Integer.class, ParameterMode.OUT);
+		query.setParameter("ysid", pid);
+		query.setParameter("mbid", tid);
+		query.execute();
+		return (int) query.getOutputParameterValue("msg");
+	}
+
 }

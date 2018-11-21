@@ -6,4 +6,7 @@ public interface NavCtgrPrcdu {
 	int delNav(int bid);
 
 	int addNav(int pid, int pst, String rname);
+
+	int movNav(int pid, int tid);
+
 }
