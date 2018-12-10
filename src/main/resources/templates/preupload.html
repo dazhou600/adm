@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<body>
+	<section class="content-header">
+		<h1>管理员 面板</h1>
+		<ol class="breadcrumb">
+			<li><a href="#"><i class="fa fa-dashboard"></i> 首页</a></li>
+		</ol>
+	</section>
+
+	<!-- 内容主体 -->
+	<section class="content">
+		<form method="POST" enctype="multipart/form-data" th:action="@{/file/upload}"> 
+           文件：<input type="file" name="file" />
+       <input type="submit" value="上传" />
+       </form>
+
+	</section>
+	<!-- /.content -->
+
+</body>
+</html>
