@@ -3943,6 +3943,9 @@ var Editor = /** @class */ (function () {
                 $target = $$1(_this.restoreTarget()).detach();
             }
             _this.context.triggerEvent('media.delete', $target, _this.$editable);
+            // 删除图片
+            var isrc = $target.context.currentSrc;
+            removePic(isrc);
         });
         /**
          * float me
@@ -6240,8 +6243,8 @@ var ImagePopover = /** @class */ (function () {
             var posEditor = dom.posFromPlaceholder(this.editable);
             this.$popover.css({
                 display: 'block',
-                left: this.options.popatmouse ? event.pageX - 20 : pos.left,
-                top: this.options.popatmouse ? event.pageY : Math.min(pos.top, posEditor.top)
+                left:pos.left,
+                top: Math.min(pos.top, posEditor.top)
             });
         }
         else {

@@ -17,18 +17,18 @@
 			<div class="col-md-12">
 				<form class="form-horizontal">
 					<div class="form-group">
-						<label>文章标题</label> <input type="text" class="form-control"
-							id="articleTitle" placeholder="请输入标题" />
+						<label>文章标题</label> <input th:value="${article.title}" type="text" class="form-control"
+							id="articleTitle"/>
 					</div>
 					<div class="form-group">
 						<label>作者</label> <input type="text" class="form-control"
-							id="articleAuthor" placeholder="请输入作者" />
+							id="articleAuthor" th:value="${article.createBy}" />
 					</div>
 					<div class="form-group">
 						<label>文章内容</label>
 						<div id="summernote"></div>
 					</div>
-					<button type="button" id="saveArticle" class="btn btn-primary">保存文章</button>
+					<button type="button" id="editArticle" class="btn btn-primary">修改文章</button>
 				</form>
 			</div>
 		</div>
@@ -41,80 +41,18 @@
         minHeight: 150,
 	    maxHeight: 300,
 		lang : 'zh-CN',
-		focus : true,
-	    callbacks: {
-				onImageUpload:
-				function(files) { 
-					alert(files[0])
-					upArticle(files[0]);
-			          		}
-				}
+		focus : true   
 	});
+	$('#summernote').summernote('code',[[${article.articleContents}]]);
 	var header = [[${_csrf.headerName}]];
 	var token =[[${_csrf.token}]];
-	//删除图片
-	function removePic(imgsrc){
-		$.ajax({
-			type : "POST",
-        	url: '/admin/cms/delArticlePic/',
-        	 data: {
-        		 'imgSrc': imgsrc
-             },
-             dataType: "json",
-        	beforeSend : function(xhr) {
-                xhr.setRequestHeader(header, token);
-	           },
-        	 success: function (data) {
-	            	if(data.msg!=null){
-                     alert(data.msg);
-	            	}
-	               },
-	             error: function () {
-	            	 alert("失败！");
-	            	 window.location.reload();
-	             }
-        
-	})   
-	}
-	//上传图片文件保存到临时文件夹
-	function upArticle(file) {
-		var data = new FormData();
-		data.append('file', file );
-		$.ajax({
-			async : true,
-			data : data,
-			type : "POST",
-			url : "/admin/cms/upArticlePic",
-	        dataType: 'json',
-			cache : false,
-			contentType:false,			
-			processData : false,
-		    beforeSend : function(xhr) {
-                xhr.setRequestHeader(header, token);
-	            },
-			success : function(msg) {
-				if (msg.error!=null){
-					alert(msg.error);
-				}else if(msg.filename!=undefined){
-					if(msg.warning!=undefined){
-					alert(msg.warning);
-					}
-					$('#summernote').summernote('insertImage', msg.filename);
-				}
-			},
-			  error: function(XMLHttpRequest, textStatus, errorThrown) {
-		            alert(XMLHttpRequest.status);
-			  }
-
-		});
-	}
-	
-	//绑定函数上传文章内容
-	$("#saveArticle").click(function(){
+	var articid=[[${article.id}]];
+	//绑定函数修改文章内容
+	$("#editArticle").click(function(){
 		var flag=confirm("确认发布文章: " + $('#articleTitle').val()+"--作者: "+$('#articleAuthor').val() + " 吗？");
 		 if(true==flag){
 	         $.ajax({
-	        	data:JSON.stringify({title: $('#articleTitle').val(),
+	        	data:JSON.stringify({id:articid,title: $('#articleTitle').val(),
 	        		createBy: $('#articleAuthor').val(),
 	        		articleContents: $('#summernote').summernote('code')
 	        		}),
