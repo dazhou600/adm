@@ -1,8 +1,13 @@
+
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<link rel="stylesheet" href="/css/summernote.css"></link>
-<script type="text/javascript" src="/js/summernote.js"></script>
-<script type="text/javascript" src="/js/summernote-zh-CN.js"></script>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<!--  头部 -->
+<head>
+<head th:include="/admin/headlink"></head>
+<!-- 脚本 -->
+<head th:include="/admin/scriptlink"></head>
+</head>
 <body>
 	<section class="content-header">
 		<h1>管理员 面板</h1>
@@ -13,130 +18,183 @@
 	<h5 class="page-header"></h5>
 	<!-- 内容主体 -->
 	<div class="container">
+		<!-- 查询、添加、批量删除、导出、刷新 -->
 		<div class="row-fluid">
-			<div class="col-md-12">
-				<form class="form-horizontal">
-					<div class="form-group">
-						<label>文章标题</label> <input type="text" class="form-control"
-							id="articleTitle" placeholder="请输入标题" />
+			<div class="pull-right">
+				<div class="btn-group">
+					<button type="button" class="btn btn-primary btn-sm" id="btn-add">
+						<i class="fa fa-plus"></i>
+						<sp:message code="sys.add" />
+					</button>
+					<button type="button" class="btn btn-primary btn-sm"
+						id="btn-delAll">
+						<i class="fa fa-remove"></i>
+						<sp:message code="sys.delAll" />
+					</button>
+					<button type="button" class="btn btn-primary btn-sm"
+						id="btn-export">
+						<i class="fa fa-sign-in"></i>
+						<sp:message code="sys.export" />
+					</button>
+					<button type="button" class="btn btn-primary btn-sm" id="btn-re">
+						<i class="fa fa-refresh"></i>
+						<sp:message code="sys.refresh" />
+					</button>
+				</div>
+			</div>
+			<div class="row">
+				<form id="queryForm" action="" method="post">
+					<div class="col-xs-2">
+						<input type="text" id="keyword" name="keyword"
+							class="form-control input-sm" placeholder="那几" />
 					</div>
-					<div class="form-group">
-						<label>作者</label> <input type="text" class="form-control"
-							id="articleAuthor" placeholder="请输入作者" />
-					</div>
-					<div class="form-group">
-						<label>文章内容</label>
-						<div id="summernote"></div>
-					</div>
-					<button type="button" id="saveArticle" class="btn btn-primary">保存文章</button>
+					<button type="button" class="btn btn-primary btn-sm" id="btn-query">
+						<i class="fa fa-search"></i>
+					</button>
 				</form>
 			</div>
 		</div>
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="box">
+					<!-- /.box-header -->
+					<div class="box-body">
+						<div class="dataTables_wrapper form-inline dt-bootstrap">
+							<div class="row">
+								<div class="col-sm-12">
+
+									<table id="listArtocle" class="display" cellspacing="0"
+										width="100%">
+										<thead>
+											<tr>
+												<th><input type="checkbox" name="select_all" value="1"
+													id="example-select-all" /></th>
+												<th>id</th>
+												<th>title</th>
+												<th>createBy</th>
+												<th>createDate</th>
+												<th>炒作</th>
+											</tr>
+										</thead>
+										<tbody>
+										</tbody>
+
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+			</div>
+			<!-- /.col -->
+		</div>
 	</div>
 	<h5 class="page-header"></h5>
-</body>
-<script th:inline="javascript">
-	$('#summernote').summernote({
-        height: 260,
-        minHeight: 150,
-	    maxHeight: 300,
-		lang : 'zh-CN',
-		focus : true,
-	    callbacks: {
-				onImageUpload:
-				function(files) { 
-					alert(files[0])
-					upArticle(files[0]);
-			          		}
-				}
-	});
+	<script th:inline="javascript">
+$(document).ready(function() {
 	var header = [[${_csrf.headerName}]];
 	var token =[[${_csrf.token}]];
-	//删除图片
-	function removePic(imgsrc){
-		$.ajax({
-			type : "POST",
-        	url: '/admin/cms/delArticlePic/',
-        	 data: {
-        		 'imgSrc': imgsrc
-             },
-             dataType: "json",
-        	beforeSend : function(xhr) {
+    $('#listArtocle').DataTable( {
+        "processing": true,
+        "serverSide": true,
+        "ajax": {
+            "url": "/admin/cms/listArticle",
+            "type": "POST",
+            data: function (d) { 
+            var param = {}; 
+            param.draw = d.draw; 
+            param.start = d.start; 
+            param.length = d.length; 
+            var formData = $("#queryForm").serializeArray();//把form里面的数据序列化成数组 
+            formData.forEach(function (e) {
+            param[e.name] = e.value;
+            }); 
+            return param;//自定义需要传递的参数。 
+            },
+            }
+            beforeSend : function(xhr) {
                 xhr.setRequestHeader(header, token);
-	           },
-        	 success: function (data) {
-	            	if(data.msg!=null){
-                     alert(data.msg);
-	            	}
-	               },
-	             error: function () {
-	            	 alert("失败！");
-	            	 window.location.reload();
-	             }
-        
-	})   
-	}
-	//上传图片文件保存到临时文件夹
-	function upArticle(file) {
-		var data = new FormData();
-		data.append('file', file );
-		$.ajax({
-			async : true,
-			data : data,
-			type : "POST",
-			url : "/admin/cms/upArticlePic",
-	        dataType: 'json',
-			cache : false,
-			contentType:false,			
-			processData : false,
-		    beforeSend : function(xhr) {
-                xhr.setRequestHeader(header, token);
-	            },
-			success : function(msg) {
-				if (msg.error!=null){
-					alert(msg.error);
-				}else if(msg.filename!=undefined){
-					if(msg.warning!=undefined){
-					alert(msg.warning);
-					}
-					$('#summernote').summernote('insertImage', msg.filename);
-				}
-			},
-			  error: function(XMLHttpRequest, textStatus, errorThrown) {
-		            alert(XMLHttpRequest.status);
-			  }
-
-		});
-	}
-	
-	//绑定函数上传文章内容
-	$("#saveArticle").click(function(){
-		var flag=confirm("确认发布文章: " + $('#articleTitle').val()+"--作者: "+$('#articleAuthor').val() + " 吗？");
-		 if(true==flag){
-	         $.ajax({
-	        	data:JSON.stringify({title: $('#articleTitle').val(),
-	        		createBy: $('#articleAuthor').val(),
-	        		articleContents: $('#summernote').summernote('code')
-	        		}),
-	 			type : "POST",
-	            url:'/admin/cms/saveArticle',
-	            dataType : 'json',
-	            contentType:"application/json;charset=UTF-8", 	            beforeSend : function(xhr) {
-	                xhr.setRequestHeader(header, token);
-		            },
-	            success: function (msg) {
-	            	if(msg.errors!=null){
-                        alert(msg.errors);
-	            	}else{
-	            		alert('成功!'+msg.entity.aid);
-	            	}
-	               },
-	             error: function () {
-	            	 alert("失败！");
-	            	 window.location.reload();
-	             }
-	         });
-	     }else{return false;}
-	})
+	            }
+        },
+        'columnDefs': [{
+            'targets': 0,
+            'searchable': false,
+            'orderable': false,
+            'className': 'dt-body-center',
+            'render': function (data, type, full, meta){
+                return '<input type="checkbox" name="id[]"/>';
+            }
+         },
+         {
+        	 'targets': 1,
+        	 data: "id",
+        	 title: "id",
+             'searchable': false,
+             'orderable': false 
+         },
+         {
+        	 'targets': 2,
+        	 data: "title",
+        	 title: "title",
+             'searchable': false,
+             'orderable': false 
+         },
+         {
+        	 'targets': 3,
+        	 data: "createBy",
+        	 title: "createBy",
+             'searchable': false,
+             'orderable': false 
+         },
+         {
+             targets: 4,
+             data: "createDate",
+             title: "最后更新时间",
+             render: function (data, type, row, meta) {
+                 return typeof data != 'number'?'':new Date(data).Format("yyyy-MM-dd hh:mm:ss");
+             }
+         },
+         {
+         'targets': -1,
+         'searchable': false,
+         'orderable': false,
+         'className': 'dt-body-center',
+         'render': function (data, type, full, meta){
+             return '<input type="checkbox" name="id[]"/>';
+         }
+      }
+        ],
+         'order': [[1, 'asc']]
+        } );
+} );
+Date.prototype.Format = function (fmt) { //author: meizz
+    var o = {
+        "M+": this.getMonth() + 1,
+        //月份
+        "d+": this.getDate(),
+        //日
+        "h+": this.getHours(),
+        //小时
+        "m+": this.getMinutes(),
+        //分
+        "s+": this.getSeconds(),
+        //秒
+        "q+": Math.floor((this.getMonth() + 3) / 3),
+        //季度
+        "S": this.getMilliseconds() //毫秒
+    };
+    if (/(y+)/.test(fmt)) {
+        fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    }
+    for (var k in o) {
+        if (new RegExp("(" + k + ")").test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        }
+    }
+    return fmt;
+};
 </script>
+</body>
 </html>

@@ -69,6 +69,14 @@ public class Article implements Serializable {
 	private String keywords;
 
 	private String description;
+	public Article(){};
+	public Article(Integer id, String title, String createBy, Date createDate) {
+		super();
+		this.id = id;
+		this.title = title;
+		this.createBy = createBy;
+		this.createDate = createDate;
+	}
 
 	public Integer getId() {
 		return id;

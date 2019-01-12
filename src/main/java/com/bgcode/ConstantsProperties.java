@@ -14,6 +14,9 @@ public class ConstantsProperties {
 	private static String picRegex;
 	
 	private static String dateformat;
+	
+	private static String baseTemplate;
+
 
 
 	public static String getPicRegex() {
@@ -32,6 +35,15 @@ public class ConstantsProperties {
 	@Value("${constants.dateformat}")
 	public static void setDateformat(String dateformat) {
 		ConstantsProperties.dateformat = dateformat;
+	}
+
+	public static String getBaseTemplate() {
+		return baseTemplate;
+	}
+
+	@Value("${constants.template}")
+	public static void setBaseTemplate(String baseTemplate) {
+		ConstantsProperties.baseTemplate = baseTemplate;
 	}
 	
 	

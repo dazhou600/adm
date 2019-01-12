@@ -46,27 +46,59 @@ public class ArticleController {
 
 	@Value("${constants.picRegex}")
 	private String picRegex;
+	
+	@Value("${constants.template}")
+	private String baseTemplate;
 
 	@Autowired
 	private ArticleRepository repo;
 
 	/**
-	 * /admin/cms/ArticleMng 文章管理 获取管理界面
+	 * /admin/cms/ArticleMng 文章管理 获取文章列表
 	 */
 	@RequestMapping(value = { "/ArticleMng" }, method = RequestMethod.GET)
 	public String getArticleMngPage(HttpServletRequest request) {
 		request.setAttribute("includePath", "/admin/business/cms/ArticleMng");
-		return "/admin/business/index";
+		return "/admin/business/cms/ArticleMng";
+	}
+	
+	@RequestMapping(value = { "/listArticle" }, method = RequestMethod.POST)
+	@ResponseBody
+	public String getAllArticle(HttpServletRequest request) {
+	
+		System.out.println("文章列表draw: ");
+		List<Article> articles = repo.findWithIdTitle();
+		Map<String, Object> data  = new HashMap<String, Object>();
+		data.put("data", articles);
+		data.put("draw", 1);
+		data.put("recordsTotal", 20);
+		data.put("recordsFiltered", 10);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			return mapper.writeValueAsString(data);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return null ;
+	}
+	
+	/**
+	 * 获取增加文章界面
+	 */
+	@RequestMapping(value = { "/addArticle" }, method = RequestMethod.GET)
+	public String addArticlePage(HttpServletRequest request) {
+		request.setAttribute("includePath", "/admin/business/cms/addArticle");
+		return baseTemplate;
 	}
 
 	/**
-	 * /admin/cms/ArticleMng 文章管理 获取修改文章界面
+	 *  文章管理 获取修改文章界面
 	 */
 	@RequestMapping(value = { "/editArticle" }, method = RequestMethod.GET)
 	public String editArticlePage(HttpServletRequest request) {
 		request.setAttribute("includePath", "/admin/business/cms/editarticle");
 		request.setAttribute("article",repo.findOne(1));
-		return "/admin/business/index";
+		return baseTemplate;
 	}
 	
 	/**

@@ -2,13 +2,12 @@
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <!--  头部 -->
-<head th:replace="/admin/headlink"></head>
-
-
-
+<head>
+<head th:include="/admin/headlink"></head>
+<!-- 脚本 -->
+<head th:include="/admin/scriptlink"></head>
+</head>
 <body class="hold-transition skin-blue sidebar-mini">
-	<!-- 脚本 -->
-	<div th:include="/admin/scriptlink"></div>
 
 	<div class="wrapper">
 
@@ -22,12 +21,11 @@
 		<div class="content-wrapper">
 			<div th:include="${#httpServletRequest.getAttribute('includePath')}"></div>
 		</div>
-		
+
 		<!-- 版权信息 -->
 		<footer th:replace="/admin/footer"></footer>
 
 	</div>
 	<!-- ./wrapper -->
-
 </body>
 </html>
