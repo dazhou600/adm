@@ -19,7 +19,7 @@
 
 		<!-- 内容 -->
 		<div class="content-wrapper">
-			<div th:include="${#httpServletRequest.getAttribute('includePath')}"></div>
+			<div th:replace="${#httpServletRequest.getAttribute('includePath')}"></div>
 		</div>
 
 		<!-- 版权信息 -->

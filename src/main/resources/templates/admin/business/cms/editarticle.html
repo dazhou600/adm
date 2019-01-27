@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="/css/summernote.css"></link>
 <script type="text/javascript" src="/js/summernote.js"></script>
 <script type="text/javascript" src="/js/summernote-zh-CN.js"></script>
+<script type="text/javascript" src="/js/cms/article.js"></script>
 <body>
 	<section class="content-header">
 		<h1>管理员 面板</h1>
@@ -47,33 +48,14 @@
 	var header = [[${_csrf.headerName}]];
 	var token =[[${_csrf.token}]];
 	var articid=[[${article.id}]];
+	var data = JSON.stringify({id:articid,title: $('#articleTitle').val(),
+		createBy: $('#articleAuthor').val(),
+		articleContents: $('#summernote').summernote('code')});
 	//绑定函数修改文章内容
 	$("#editArticle").click(function(){
 		var flag=confirm("确认发布文章: " + $('#articleTitle').val()+"--作者: "+$('#articleAuthor').val() + " 吗？");
 		 if(true==flag){
-	         $.ajax({
-	        	data:JSON.stringify({id:articid,title: $('#articleTitle').val(),
-	        		createBy: $('#articleAuthor').val(),
-	        		articleContents: $('#summernote').summernote('code')
-	        		}),
-	 			type : "POST",
-	            url:'/admin/cms/saveArticle',
-	            dataType : 'json',
-	            contentType:"application/json;charset=UTF-8", 	            beforeSend : function(xhr) {
-	                xhr.setRequestHeader(header, token);
-		            },
-	            success: function (msg) {
-	            	if(msg.errors!=null){
-                        alert(msg.errors);
-	            	}else{
-	            		alert('成功!'+msg.entity.aid);
-	            	}
-	               },
-	             error: function () {
-	            	 alert("失败！");
-	            	 window.location.reload();
-	             }
-	         });
+			 saveEditArticle(data,header,token);
 	     }else{return false;}
 	})
 </script>

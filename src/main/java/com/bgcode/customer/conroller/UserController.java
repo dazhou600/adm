@@ -27,5 +27,9 @@ public class UserController {
 		request.setAttribute("navbars", njson);
 		return "/home" ;
 	}
+	@RequestMapping(value = {"/assets/Chinese.txt"}, method = RequestMethod.GET)
+	public String getTxt(HttpServletRequest request) throws JsonProcessingException {
+		return "/assets/Chinese" ;
+	}
 	
 }

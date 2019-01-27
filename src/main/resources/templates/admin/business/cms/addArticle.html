@@ -62,7 +62,7 @@ var token =[[${_csrf.token}]];
 	        		createBy: $('#articleAuthor').val(),
 	        		articleContents: $('#summernote').summernote('code')
 	        		});
-		saveEditArticle(data);
+		saveEditArticle(data,header,token);
 	     }else{return false;}
 	})
 </script>

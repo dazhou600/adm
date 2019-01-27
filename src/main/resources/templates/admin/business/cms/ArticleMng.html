@@ -1,13 +1,5 @@
-
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
-<!--  头部 -->
-<head>
-<head th:include="/admin/headlink"></head>
-<!-- 脚本 -->
-<head th:include="/admin/scriptlink"></head>
-</head>
+<!-- 文章脚本 -->
+<script type="text/javascript" src="/js/cms/article.js"></script>
 <body>
 	<section class="content-header">
 		<h1>管理员 面板</h1>
@@ -16,42 +8,67 @@
 		</ol>
 	</section>
 	<h5 class="page-header"></h5>
-	<!-- 内容主体 -->
-	<div class="container">
-		<!-- 查询、添加、批量删除、导出、刷新 -->
-		<div class="row-fluid">
-			<div class="pull-right">
-				<div class="btn-group">
-					<button type="button" class="btn btn-primary btn-sm" id="btn-add">
-						<i class="fa fa-plus"></i>
-						<sp:message code="sys.add" />
+	<!-- 模态框 articleSearch-->
+	<div class="modal fade" id="articleSearch" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
 					</button>
-					<button type="button" class="btn btn-primary btn-sm"
-						id="btn-delAll">
-						<i class="fa fa-remove"></i>
-						<sp:message code="sys.delAll" />
-					</button>
-					<button type="button" class="btn btn-primary btn-sm"
-						id="btn-export">
-						<i class="fa fa-sign-in"></i>
-						<sp:message code="sys.export" />
-					</button>
-					<button type="button" class="btn btn-primary btn-sm" id="btn-re">
-						<i class="fa fa-refresh"></i>
-						<sp:message code="sys.refresh" />
-					</button>
+					<h4 class="modal-title text-center">按关键字搜索</h4>
+				</div>
+				<div class="modal-body">
+					<form class="form-horizontal">
+						<div class="box-body">
+							<div class="form-group">
+								<label for="inputEmail3" class="col-sm-2 control-label">名称</label>
+
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="title"
+										placeholder="标题" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="inputPassword3" class="col-sm-2 control-label">关键字</label>
+
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="" placeholder="关键" />
+								</div>
+							</div>
+						</div>
+						<!-- /.box-body -->
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary">设置</button>
 				</div>
 			</div>
-			<div class="row">
-				<form id="queryForm" action="" method="post">
-					<div class="col-xs-2">
-						<input type="text" id="keyword" name="keyword"
-							class="form-control input-sm" placeholder="那几" />
+		</div>
+	</div>
+	<!-- 内容主体 -->
+	<section class="content">
+		<!-- 查询、添加、批量删除、导出、刷新 -->
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="pull-right">
+					<div class="btn-group">
+						<button type="button" class="btn btn-primary btn-sm"
+							onclick="window.location.href='/admin/cms/addArticle'">
+							<i class="fa fa-plus"></i> <span>增加</span>
+						</button>
+						<button type="button" class="btn btn-primary btn-sm"
+							data-toggle="modal" data-target="#articleSearch">
+							<i class="fa fa-search"></i> <span>搜索</span>
+						</button>
+						<button type="button" class="btn btn-primary btn-sm" id="btn-re">
+							<i class="fa fa-refresh"></i> <span>刷新</span>
+						</button>
 					</div>
-					<button type="button" class="btn btn-primary btn-sm" id="btn-query">
-						<i class="fa fa-search"></i>
-					</button>
-				</form>
+				</div>
 			</div>
 		</div>
 		<div class="row">
@@ -59,30 +76,23 @@
 				<div class="box">
 					<!-- /.box-header -->
 					<div class="box-body">
-						<div class="dataTables_wrapper form-inline dt-bootstrap">
-							<div class="row">
-								<div class="col-sm-12">
-
-									<table id="listArtocle" class="display" cellspacing="0"
-										width="100%">
-										<thead>
-											<tr>
-												<th><input type="checkbox" name="select_all" value="1"
-													id="example-select-all" /></th>
-												<th>id</th>
-												<th>title</th>
-												<th>createBy</th>
-												<th>createDate</th>
-												<th>炒作</th>
-											</tr>
-										</thead>
-										<tbody>
-										</tbody>
-
-									</table>
-								</div>
-							</div>
-						</div>
+						<!-- 表格开始 -->
+						<table id="listArtocle" class="table-bordered table-hover table-striped" style="table-layout:fixed;width:100%;">
+							<thead>
+								<tr>
+									<th><input type="checkbox" name="select_all" value="1"
+										id="example-select-all" /></th>
+									<th>id</th>
+									<th>title</th>
+									<th>createBy</th>
+									<th>createDate</th>
+									<th>编辑</th>
+									<th>删除</th>	
+								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
 					</div>
 					<!-- /.box-body -->
 				</div>
@@ -90,30 +100,37 @@
 			</div>
 			<!-- /.col -->
 		</div>
-	</div>
+		<!-- /.row -->
+	</section>
 	<h5 class="page-header"></h5>
-	<script th:inline="javascript">
-$(document).ready(function() {
+<script th:inline="javascript">
 	var header = [[${_csrf.headerName}]];
 	var token =[[${_csrf.token}]];
-    $('#listArtocle').DataTable( {
-        "processing": true,
-        "serverSide": true,
+	var table;
+$(document).ready(function() {
+	 table = $('#listArtocle').DataTable( {
+        "language": {
+            "url": "/assets/Chinese.txt"
+        },
+        "scrollX":true,
+    	"processing": true,
+       // "serverSide": true,
         "ajax": {
             "url": "/admin/cms/listArticle",
             "type": "POST",
-            data: function (d) { 
+    		data: function (d) { 
             var param = {}; 
             param.draw = d.draw; 
             param.start = d.start; 
             param.length = d.length; 
             var formData = $("#queryForm").serializeArray();//把form里面的数据序列化成数组 
             formData.forEach(function (e) {
+            	//if(e.value!==null);
             param[e.name] = e.value;
             }); 
             return param;//自定义需要传递的参数。 
             },
-            }
+            
             beforeSend : function(xhr) {
                 xhr.setRequestHeader(header, token);
 	            }
@@ -122,7 +139,6 @@ $(document).ready(function() {
             'targets': 0,
             'searchable': false,
             'orderable': false,
-            'className': 'dt-body-center',
             'render': function (data, type, full, meta){
                 return '<input type="checkbox" name="id[]"/>';
             }
@@ -137,15 +153,19 @@ $(document).ready(function() {
          {
         	 'targets': 2,
         	 data: "title",
-        	 title: "title",
-             'searchable': false,
-             'orderable': false 
-         },
+        	 title: "标题",
+             'orderable': false ,
+             'width': '55px',
+             render: function (data, type, row, meta) {
+             return '<div style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">'+data+'</div>'
+             }
+             },
          {
         	 'targets': 3,
         	 data: "createBy",
         	 title: "createBy",
              'searchable': false,
+             "width": "20%",
              'orderable': false 
          },
          {
@@ -153,21 +173,50 @@ $(document).ready(function() {
              data: "createDate",
              title: "最后更新时间",
              render: function (data, type, row, meta) {
-                 return typeof data != 'number'?'':new Date(data).Format("yyyy-MM-dd hh:mm:ss");
+                 //return typeof data != 'number'?'':new Date(data).Format("yyyy-MM-dd hh:mm:ss");
+                 return typeof data != 'number'?'':'<div style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">'+new Date(data).Format("yyyy-MM-dd hh:mm:ss") +'</div>';
              }
          },
          {
-         'targets': -1,
+         'targets': -2,
+    	 title: "编辑",
          'searchable': false,
          'orderable': false,
-         'className': 'dt-body-center',
-         'render': function (data, type, full, meta){
-             return '<input type="checkbox" name="id[]"/>';
+         'width': "36px",
+         'render': function (data, type, row, meta){
+             return '<button type="button" class="btn" onclick="window.location.href=\'/admin/cms/editArticle/'+row.id+'\'"><i class="fa fa-pencil-square-o"></i></button>'
+             ;
          }
-      }
+      },
+      {
+          'targets': -1,
+     	 title: "删除",
+          'searchable': false,
+          'width': "36px",
+          'orderable': false,
+          'render': function (data, type, row, meta){
+               return '<button type="button" class="btn btn-danger"><i class="fa fa-trash-o"></i></button>'
+              ;
+          }
+       }
         ],
          'order': [[1, 'asc']]
         } );
+});
+
+
+$('#listArtocle tbody').on( 'click', 'button.btn.btn-danger', function () {
+	var rowDada = table.row( $(this).parents('tr') ).data() ;
+	var flag = confirm("确认删除文章: " + rowDada.title + " 吗？");
+	if (true == flag) {
+		deleteArticle(rowDada, header, token);
+	table
+        .row( $(this).parents('tr') )
+        .remove()
+        .draw(false);
+	} else {
+		return false;
+	}
 } );
 Date.prototype.Format = function (fmt) { //author: meizz
     var o = {
@@ -197,4 +246,3 @@ Date.prototype.Format = function (fmt) { //author: meizz
 };
 </script>
 </body>
-</html>

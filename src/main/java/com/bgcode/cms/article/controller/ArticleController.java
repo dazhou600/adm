@@ -46,7 +46,7 @@ public class ArticleController {
 
 	@Value("${constants.picRegex}")
 	private String picRegex;
-	
+
 	@Value("${constants.template}")
 	private String baseTemplate;
 
@@ -59,16 +59,16 @@ public class ArticleController {
 	@RequestMapping(value = { "/ArticleMng" }, method = RequestMethod.GET)
 	public String getArticleMngPage(HttpServletRequest request) {
 		request.setAttribute("includePath", "/admin/business/cms/ArticleMng");
-		return "/admin/business/cms/ArticleMng";
+		return baseTemplate;
 	}
-	
+
 	@RequestMapping(value = { "/listArticle" }, method = RequestMethod.POST)
 	@ResponseBody
 	public String getAllArticle(HttpServletRequest request) {
-	
+
 		System.out.println("文章列表draw: ");
 		List<Article> articles = repo.findWithIdTitle();
-		Map<String, Object> data  = new HashMap<String, Object>();
+		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("data", articles);
 		data.put("draw", 1);
 		data.put("recordsTotal", 20);
@@ -79,9 +79,9 @@ public class ArticleController {
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
-		return null ;
+		return null;
 	}
-	
+
 	/**
 	 * 获取增加文章界面
 	 */
@@ -92,15 +92,16 @@ public class ArticleController {
 	}
 
 	/**
-	 *  文章管理 获取修改文章界面
+	 * 文章管理 获取修改文章界面
 	 */
-	@RequestMapping(value = { "/editArticle" }, method = RequestMethod.GET)
-	public String editArticlePage(HttpServletRequest request) {
+	@RequestMapping(value = { "/editArticle/{id}" }, method = RequestMethod.GET)
+	public String editArticlePage(HttpServletRequest request, @PathVariable String id) {
 		request.setAttribute("includePath", "/admin/business/cms/editarticle");
-		request.setAttribute("article",repo.findOne(1));
+		Integer aid = Integer.parseInt(id);
+		request.setAttribute("article", repo.findOne(aid));
 		return baseTemplate;
 	}
-	
+
 	/**
 	 * 
 	 * 文章管理 上传图片文件保存到临时文件夹
@@ -110,6 +111,7 @@ public class ArticleController {
 	@RequestMapping(value = { "/upArticlePic" }, method = RequestMethod.POST)
 	@ResponseBody
 	public String upload(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
+		System.out.println("上传的文件：" + file);
 		Map<String, String> m = new HashMap<String, String>();
 		if (file.isEmpty()) {
 			throw new IOException("File '" + file + "' 文件不存在!");
@@ -129,7 +131,7 @@ public class ArticleController {
 				}
 				try {
 					file.transferTo(dest);
-					m.put("filename", "http://localhost:8080/imgs/temp/" + fileName);
+					m.put("filename", "http://localhost:8080/upload/pic/" + fileName);
 				} catch (IllegalStateException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -137,7 +139,7 @@ public class ArticleController {
 				}
 			} else {
 				m.put("warning", "图片已经存在！");
-				m.put("filename", "http://localhost:8080/imgs/temp/" + fileName);
+				m.put("filename", "http://localhost:8080/upload/pic/" + fileName);
 			}
 		} else {
 			m.put("error", "上传图片名称含非法字符或非图片文件！");
@@ -177,11 +179,15 @@ public class ArticleController {
 			}
 			m.put("errors", sb.toString());
 		} else {
-			if(article.getId()==null){
+			if (article.getId() == null) {
 				article.setCreateDate(new Date());
 			}
-			Article arti = repo.save(article);
-			m.put("entity", arti);
+			try {
+				Article arti = repo.save(article);
+				m.put("entity", arti);
+			} catch (Exception e) {
+				m.put("errors", e.getMessage());
+			}
 		}
 		ObjectMapper mapper = new ObjectMapper();
 		try {
@@ -195,30 +201,30 @@ public class ArticleController {
 	/**
 	 * 删除图片
 	 */
-	@RequestMapping(value ="/delArticlePic/", method = RequestMethod.POST)
+	@RequestMapping(value = "/delArticlePic/", method = RequestMethod.POST)
 	@ResponseBody
-	public String delArticle(@RequestParam("imgSrc") String imgsrc) {
+	public String delArticlePic(@RequestParam("imgSrc") String imgsrc) {
 		String msg = null;
 		try {
-			//对乱码处理
-			imgsrc= URLDecoder.decode(imgsrc, "utf-8");
+			// 对乱码处理
+			imgsrc = URLDecoder.decode(imgsrc, "utf-8");
 		} catch (UnsupportedEncodingException e1) {
 			e1.printStackTrace();
 		}
 		Map<String, String> m = new HashMap<String, String>();
-		if(StringUtils.isBlank(imgsrc)||StringUtils.indexOf(imgsrc, "/")==-1){
-			return "{\"msg\": \"图片格式："+imgsrc+" 不合法！\"}";
-		}else{
+		if (StringUtils.isBlank(imgsrc) || StringUtils.indexOf(imgsrc, "/") == -1) {
+			return "{\"msg\": \"图片格式：" + imgsrc + " 不合法！\"}";
+		} else {
 			String fileName = StringUtils.substringAfterLast(imgsrc, "/");
-				File file = new File(picTempDir+fileName);
-				if(file.exists()){
-					if(FileUtils.deleteQuietly(file)){
-						m.put("msg", "删除图片成功");
-					}
+			File file = new File(picTempDir + fileName);
+			if (file.exists()) {
+				if (FileUtils.deleteQuietly(file)) {
+					m.put("msg", "删除图片成功");
 				}
+			}
 		}
-		
-		System.out.println(imgsrc+"删除图片");
+
+		System.out.println(imgsrc + "删除图片");
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			msg = mapper.writeValueAsString(m);
@@ -228,4 +234,27 @@ public class ArticleController {
 		return msg;
 	}
 
+	/**
+	 * 删除文章
+	 */
+	@RequestMapping(value = { "/delArticle/{id}" }, method = RequestMethod.GET)
+	@ResponseBody
+	public String delArticle(HttpServletRequest request, @PathVariable String id) {
+		String msg = null;
+		Map<String, String> m = new HashMap<String, String>();
+		try {
+			Integer aid = Integer.parseInt(id);
+			repo.delete(aid);
+			m.put("msg", "文章：" + aid + "删除成功！");
+		} catch (NumberFormatException e) {
+			m.put("error", e.getMessage());
+		}
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			msg = mapper.writeValueAsString(m);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return msg;
+	}
 }
