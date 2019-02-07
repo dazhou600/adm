@@ -77,17 +77,19 @@
 					<!-- /.box-header -->
 					<div class="box-body">
 						<!-- 表格开始 -->
-						<table id="listArtocle" class="table-bordered table-hover table-striped" style="table-layout:fixed;width:100%;">
+						<table id="listArtocle"
+							class="table-bordered table-hover table-striped"
+							style="table-layout: fixed; width: 100%;">
 							<thead>
 								<tr>
-									<th><input type="checkbox" name="select_all" value="1"
-										id="example-select-all" /></th>
 									<th>id</th>
 									<th>title</th>
-									<th>createBy</th>
+									<th>作者</th>
+									<th>创建</th>
 									<th>createDate</th>
-									<th>编辑</th>
-									<th>删除</th>	
+									<th>contents</th>
+									<th>edt</th>
+									<th>del</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -103,13 +105,13 @@
 		<!-- /.row -->
 	</section>
 	<h5 class="page-header"></h5>
-<script th:inline="javascript">
+	<script th:inline="javascript">
 	var header = [[${_csrf.headerName}]];
 	var token =[[${_csrf.token}]];
 	var table;
 $(document).ready(function() {
 	 table = $('#listArtocle').DataTable( {
-        "language": {
+		 "language": {
             "url": "/assets/Chinese.txt"
         },
         "scrollX":true,
@@ -118,95 +120,59 @@ $(document).ready(function() {
         "ajax": {
             "url": "/admin/cms/listArticle",
             "type": "POST",
-    		data: function (d) { 
-            var param = {}; 
-            param.draw = d.draw; 
-            param.start = d.start; 
-            param.length = d.length; 
-            var formData = $("#queryForm").serializeArray();//把form里面的数据序列化成数组 
-            formData.forEach(function (e) {
-            	//if(e.value!==null);
-            param[e.name] = e.value;
-            }); 
-            return param;//自定义需要传递的参数。 
-            },
-            
             beforeSend : function(xhr) {
                 xhr.setRequestHeader(header, token);
 	            }
         },
         'columnDefs': [{
-            'targets': 0,
-            'searchable': false,
-            'orderable': false,
-            'render': function (data, type, full, meta){
-                return '<input type="checkbox" name="id[]"/>';
-            }
-         },
-         {
-        	 'targets': 1,
-        	 data: "id",
-        	 title: "id",
-             'searchable': false,
-             'orderable': false 
-         },
-         {
-        	 'targets': 2,
-        	 data: "title",
-        	 title: "标题",
-             'orderable': false ,
-             render: function (data, type, row, meta) {
-             return '<div style="width: 100px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" title="'+data+'">'+data+'</div>'
-             }
-             },
-         {
-        	 'targets': 3,
-        	 data: "createBy",
-        	 title: "createBy",
-             'searchable': false,
-             "width": "20%",
-             'orderable': false 
-         },
-         {
-             targets: 4,
-             data: "createDate",
-             title: "最后更新时间",
-             render: function (data, type, row, meta) {
-                 //return typeof data != 'number'?'':new Date(data).Format("yyyy-MM-dd hh:mm:ss");
-                 return typeof data != 'number'?'':'<div style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">'+new Date(data).Format("yyyy-MM-dd hh:mm:ss") +'</div>';
-             }
-         },
-         {
-         'targets': -2,
-    	 title: "编辑",
-         'searchable': false,
-         'orderable': false,
-         'width': "36px",
-         'render': function (data, type, row, meta){
-             return '<button type="button" class="btn" onclick="window.location.href=\'/admin/cms/editArticle/'+row.id+'\'"><i class="fa fa-pencil-square-o"></i></button>'
-             ;
-         }
-      },
-      {
-          'targets': -1,
-     	 title: "删除",
-          'searchable': false,
-          'width': "36px",
-          'orderable': false,
-          'render': function (data, type, row, meta){
-               return '<button type="button" class="btn btn-danger"><i class="fa fa-trash-o"></i></button>'
-              ;
-          }
-       }
-        ],
-         'order': [[1, 'asc']]
-        } );
+           	 'targets': 1,
+           	 data: 1,
+           	 title: "标题",
+                'orderable': false ,
+                render: function (data, type, row, meta) {
+                return '<div style="width: 100px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" title="'+data+'">'+data+'</div>'
+                }
+                
+       },
+       {
+         	 'targets': 5,
+         	 data: 5,
+         	 title: "内容",
+              'orderable': false ,
+              render: function (data, type, row, meta) {
+            	  return data;
+              }
+              
+     },
+       {
+           'targets': -2,
+      	 title: "编辑",
+           'searchable': false,
+           'orderable': false,
+           'width': "36px",
+           'render': function (data, type, row, meta){
+               return '<button type="button" class="btn" onclick="window.location.href=\'/admin/cms/editArticle/'+row[0]+'\'"><i class="fa fa-pencil-square-o"></i></button>'
+               ;
+           }
+        },
+       {
+           'targets': -1,
+      	 title: "删除",
+           'searchable': false,
+           'width': "36px",
+           'orderable': false,
+           'render': function (data, type, row, meta){
+                return '<button type="button" class="btn btn-danger"><i class="fa fa-trash-o"></i></button>'
+               ;
+           }
+        }
+        ]
+        });
 });
-
 
 $('#listArtocle tbody').on( 'click', 'button.btn.btn-danger', function () {
 	var rowDada = table.row( $(this).parents('tr') ).data() ;
-	var flag = confirm("确认删除文章: " + rowDada.title + " 吗？");
+	var flag = confirm("确认删除文章: " + rowDada[1] + " 吗？");
 	if (true == flag) {
 		deleteArticle(rowDada, header, token);
 	table

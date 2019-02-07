@@ -42,19 +42,27 @@
         minHeight: 150,
 	    maxHeight: 300,
 		lang : 'zh-CN',
-		focus : true   
+		focus : true ,
+		 callbacks: {
+				onImageUpload:
+				function(files) { 
+					alert(files[0])
+					upArticle(files[0],header, token);
+			          		}
+				}
 	});
 	$('#summernote').summernote('code',[[${article.articleContents}]]);
 	var header = [[${_csrf.headerName}]];
 	var token =[[${_csrf.token}]];
 	var articid=[[${article.id}]];
-	var data = JSON.stringify({id:articid,title: $('#articleTitle').val(),
-		createBy: $('#articleAuthor').val(),
-		articleContents: $('#summernote').summernote('code')});
+	
 	//绑定函数修改文章内容
 	$("#editArticle").click(function(){
 		var flag=confirm("确认发布文章: " + $('#articleTitle').val()+"--作者: "+$('#articleAuthor').val() + " 吗？");
 		 if(true==flag){
+			 var data = JSON.stringify({id:articid,title: $('#articleTitle').val(),
+					auth: $('#articleAuthor').val(),
+					articleContents: $('#summernote').summernote('code')});
 			 saveEditArticle(data,header,token);
 	     }else{return false;}
 	})

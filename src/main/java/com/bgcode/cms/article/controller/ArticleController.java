@@ -7,6 +7,7 @@ import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.validation.FieldError;
 import com.bgcode.cms.dao.ArticleRepository;
 import com.bgcode.cms.entity.Article;
+import com.bgcode.cms.service.ArticleSevice;
+import com.bgcode.websoketmsg.service.ReturnMsgUtile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -53,40 +56,34 @@ public class ArticleController {
 	@Autowired
 	private ArticleRepository repo;
 
+	@Autowired
+	private ArticleSevice articlesSevice;
+
 	/**
 	 * /admin/cms/ArticleMng 文章管理 获取文章列表
 	 */
 	@RequestMapping(value = { "/ArticleMng" }, method = RequestMethod.GET)
 	public String getArticleMngPage(HttpServletRequest request) {
-		request.setAttribute("includePath", "/admin/business/cms/ArticleMng");
+		request.setAttribute("includePath", "/admin/business/cms/articlelist");
+		// request.setAttribute("includePath",
+		// "/admin/business/cms/ArticleMng");
 		return baseTemplate;
 	}
 
 	@RequestMapping(value = { "/listArticle" }, method = RequestMethod.POST)
 	@ResponseBody
-	public String getAllArticle(HttpServletRequest request) {
-
-		System.out.println("文章列表draw: ");
-		List<Article> articles = repo.findWithIdTitle();
-		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("data", articles);
-		data.put("draw", 1);
-		data.put("recordsTotal", 20);
-		data.put("recordsFiltered", 10);
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			return mapper.writeValueAsString(data);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-		return null;
+	public String listArticle(HttpServletRequest request) {
+		List<Article> articles = repo.findAll();
+		int total = articles.size();
+		String aa = "{\"data\":[" + StringUtils.join(articles, ",") + "]}";
+		return aa;
 	}
 
 	/**
 	 * 获取增加文章界面
 	 */
 	@RequestMapping(value = { "/addArticle" }, method = RequestMethod.GET)
-	public String addArticlePage(HttpServletRequest request) {
+	public String getAddArticlePage(HttpServletRequest request) {
 		request.setAttribute("includePath", "/admin/business/cms/addArticle");
 		return baseTemplate;
 	}
@@ -98,7 +95,7 @@ public class ArticleController {
 	public String editArticlePage(HttpServletRequest request, @PathVariable String id) {
 		request.setAttribute("includePath", "/admin/business/cms/editarticle");
 		Integer aid = Integer.parseInt(id);
-		request.setAttribute("article", repo.findOne(aid));
+		request.setAttribute("article", repo.findArticle(aid).get(0));
 		return baseTemplate;
 	}
 
@@ -111,8 +108,8 @@ public class ArticleController {
 	@RequestMapping(value = { "/upArticlePic" }, method = RequestMethod.POST)
 	@ResponseBody
 	public String upload(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
-		System.out.println("上传的文件：" + file);
-		Map<String, String> m = new HashMap<String, String>();
+		// System.out.println("上传的文件：" + file);
+		Map<String, String> msgMap = new HashMap<String, String>();
 		if (file.isEmpty()) {
 			throw new IOException("File '" + file + "' 文件不存在!");
 		}
@@ -131,33 +128,26 @@ public class ArticleController {
 				}
 				try {
 					file.transferTo(dest);
-					m.put("filename", "http://localhost:8080/upload/pic/" + fileName);
+					msgMap.put("filename", "http://localhost:8080/upload/pic/" + fileName);
 				} catch (IllegalStateException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			} else {
-				m.put("warning", "图片已经存在！");
-				m.put("filename", "http://localhost:8080/upload/pic/" + fileName);
+				msgMap.put("warning", "图片已经存在！");
+				msgMap.put("filename", "http://localhost:8080/upload/pic/" + fileName);
 			}
 		} else {
-			m.put("error", "上传图片名称含非法字符或非图片文件！");
+			msgMap.put("error", "上传图片名称含非法字符或非图片文件！");
 		}
 
-		ObjectMapper mapper = new ObjectMapper();
-		String msg = null;
-		try {
-			msg = mapper.writeValueAsString(m);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-		return msg;
+		return ReturnMsgUtile.toJSONMsg(msgMap);
 	}
 
 	/**
 	 * 
-	 * 文章管理 上传文章标题、作者、及图片文件移动图片文件夹
+	 * 文章管理 上传文章标题、作者、及图片文件
 	 * 
 	 * 
 	 */
@@ -165,53 +155,35 @@ public class ArticleController {
 	@ResponseBody
 	public String saveArticle(@RequestBody @Validated Article article, BindingResult result) {
 		String msg = null;
-		Map<String, Object> m = new HashMap<String, Object>();
-		if (result.hasErrors()) {
-			List<FieldError> errors = result.getFieldErrors();
-			StringBuilder sb = new StringBuilder();
-			sb.append("有" + errors.size() + "错误：");
-			for (int i = 0; i < errors.size(); i++) {
-				sb.append(i + 1);
-				sb.append(errors.get(i).getDefaultMessage());
-				if (i + 1 < errors.size()) {
-					sb.append(",");
-				}
-			}
-			m.put("errors", sb.toString());
+		Map<String, String> msgMap = new HashMap<String, String>();
+		msg = ReturnMsgUtile.extrMsg(result);
+		if (msg != null) {
+			msgMap.put("errors", msg);
+			return ReturnMsgUtile.toJSONMsg(msgMap);
+		}
+		int count = articlesSevice.saveArticle(article);
+		if (count == 1) {
+			msgMap.put("seccess", article.getTitle());
 		} else {
-			if (article.getId() == null) {
-				article.setCreateDate(new Date());
-			}
-			try {
-				Article arti = repo.save(article);
-				m.put("entity", arti);
-			} catch (Exception e) {
-				m.put("errors", e.getMessage());
-			}
+			msgMap.put("errors", article.getTitle() + ":更新失败");
 		}
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			msg = mapper.writeValueAsString(m);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-		return msg;
+		return ReturnMsgUtile.toJSONMsg(msgMap);
 	}
 
 	/**
 	 * 删除图片
 	 */
-	@RequestMapping(value = "/delArticlePic/", method = RequestMethod.POST)
+	@RequestMapping(value = "/delArticlePic/{imgSrc}", method = RequestMethod.GET)
 	@ResponseBody
-	public String delArticlePic(@RequestParam("imgSrc") String imgsrc) {
-		String msg = null;
-		try {
-			// 对乱码处理
-			imgsrc = URLDecoder.decode(imgsrc, "utf-8");
-		} catch (UnsupportedEncodingException e1) {
-			e1.printStackTrace();
-		}
-		Map<String, String> m = new HashMap<String, String>();
+	public String delArticlePic(@PathVariable  String imgsrc) {
+//		try {
+//			// 对乱码处理
+//			imgsrc = URLDecoder.decode(imgsrc, "utf-8");
+//		} catch (UnsupportedEncodingException e1) {
+//			e1.printStackTrace();
+//		}
+		System.out.println(imgsrc);
+		Map<String, String> msgMap = new HashMap<String, String>();
 		if (StringUtils.isBlank(imgsrc) || StringUtils.indexOf(imgsrc, "/") == -1) {
 			return "{\"msg\": \"图片格式：" + imgsrc + " 不合法！\"}";
 		} else {
@@ -219,19 +191,11 @@ public class ArticleController {
 			File file = new File(picTempDir + fileName);
 			if (file.exists()) {
 				if (FileUtils.deleteQuietly(file)) {
-					m.put("msg", "删除图片成功");
+					msgMap.put("msg", "删除图片成功");
 				}
 			}
 		}
-
-		System.out.println(imgsrc + "删除图片");
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			msg = mapper.writeValueAsString(m);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-		return msg;
+		return ReturnMsgUtile.toJSONMsg(msgMap);
 	}
 
 	/**
@@ -240,21 +204,14 @@ public class ArticleController {
 	@RequestMapping(value = { "/delArticle/{id}" }, method = RequestMethod.GET)
 	@ResponseBody
 	public String delArticle(HttpServletRequest request, @PathVariable String id) {
-		String msg = null;
-		Map<String, String> m = new HashMap<String, String>();
+		Map<String, String> msgMap = new HashMap<String, String>();
 		try {
 			Integer aid = Integer.parseInt(id);
 			repo.delete(aid);
-			m.put("msg", "文章：" + aid + "删除成功！");
+			msgMap.put("msg", "文章：" + aid + "删除成功！");
 		} catch (NumberFormatException e) {
-			m.put("error", e.getMessage());
+			msgMap.put("error", e.getMessage());
 		}
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			msg = mapper.writeValueAsString(m);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-		return msg;
+		return ReturnMsgUtile.toJSONMsg(msgMap);
 	}
 }

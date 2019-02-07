@@ -35,12 +35,9 @@ function upArticle(file, header, token) {
 // 删除图片
 function removePic(imgsrc) {
 	$.ajax({
-		type : "POST",
-		url : '/admin/cms/delArticlePic/',
-		data : {
-			'imgSrc' : imgsrc
-		},
+		url : '/admin/cms/delArticlePic/'+imgsrc,
 		dataType : "json",
+		contentType : "application/json;charset=UTF-8",
 		beforeSend : function(xhr) {
 			xhr.setRequestHeader(header, token);
 		},
@@ -73,7 +70,7 @@ function saveEditArticle(data, header, token) {
 				alert(msg.errors);
 				window.location.href = mngPage;
 			} else {
-				alert(msg.entity.title + ' 保存成功!');
+				alert(msg.seccess + ' 保存成功!');
 				window.location.href = mngPage;
 			}
 		},
@@ -86,7 +83,7 @@ function saveEditArticle(data, header, token) {
 // 删除文章内容和图片
 function deleteArticle(row, header, token) {
 		$.ajax({
-			url : '/admin/cms/delArticle/' + row.id,
+			url : '/admin/cms/delArticle/' + row[0],
 			dataType : 'json',
 			contentType : "application/json;charset=UTF-8",
 			beforeSend : function(xhr) {
@@ -104,4 +101,15 @@ function deleteArticle(row, header, token) {
 				window.location.href=mngPage;
 			}
 		});
+}
+/*传入html字符串源码即可*/
+function htmlEscape(text){
+  return text.replace(/[<>"]/g, function(match, pos, originalText){
+    switch(match){
+    case "<": return "&lt;";
+    case ">":return "&gt;";
+   // case "&":return "&amp;";
+    case "\"":return "&#39;";
+  }
+  });
 }
