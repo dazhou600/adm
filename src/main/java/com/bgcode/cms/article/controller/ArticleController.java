@@ -1,4 +1,4 @@
-package com.bgcode.cms.article.controller;
+   package com.bgcode.cms.article.controller;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -36,6 +37,7 @@ import org.springframework.validation.FieldError;
 import com.bgcode.cms.dao.ArticleRepository;
 import com.bgcode.cms.entity.Article;
 import com.bgcode.cms.service.ArticleSevice;
+import com.bgcode.common.PageParam;
 import com.bgcode.websoketmsg.service.ReturnMsgUtile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -72,10 +74,19 @@ public class ArticleController {
 
 	@RequestMapping(value = { "/listArticle" }, method = RequestMethod.POST)
 	@ResponseBody
-	public String listArticle(HttpServletRequest request) {
-		List<Article> articles = repo.findAll();
-		int total = articles.size();
-		String aa = "{\"data\":[" + StringUtils.join(articles, ",") + "]}";
+	public String listArticle(@RequestBody @Validated PageParam param, BindingResult result) {
+		//List<Article> articles = repo.findAll();
+		//String aa = "{\"start\":3,\"length\":10,\"data\":[" + StringUtils.join(articles, ",") + "]}";
+		String msg = ReturnMsgUtile.extrMsg(result);
+		if (msg != null) {
+			Map<String, String> msgMap = new HashMap<String, String>();
+			msgMap.put("errors", msg);
+			return ReturnMsgUtile.toJSONMsg(msgMap);
+		}
+		System.out.println("articlesSevice");
+		Page<Article> articles =articlesSevice.findArticlePage(param);
+		long total = articles.getTotalElements();
+		String aa = "{\"draw\":"+param.getDraw()+",\"start\":"+param.getStart()+",\"length\":"+param.getLength()+",\"total\":"+total+",\"data\":[" + StringUtils.join(articles.getContent(), ",") + "]}";
 		return aa;
 	}
 
@@ -108,16 +119,17 @@ public class ArticleController {
 	@RequestMapping(value = { "/upArticlePic" }, method = RequestMethod.POST)
 	@ResponseBody
 	public String upload(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
-		// System.out.println("上传的文件：" + file);
 		Map<String, String> msgMap = new HashMap<String, String>();
 		if (file.isEmpty()) {
 			throw new IOException("File '" + file + "' 文件不存在!");
 		}
 		// 获取文件名
 		String fileName = file.getOriginalFilename();
+		System.out.println("上传的文件：" + fileName);
 		// 编译正则表达式
 		Pattern pattern = Pattern.compile(picRegex, Pattern.CASE_INSENSITIVE);
 		Matcher matcher = pattern.matcher(fileName);
+		String localAddr =request.getLocalAddr();
 		if (matcher.matches()) {
 			File dest = new File(picTempDir + fileName);
 			System.out.println("上传的文件名为：" + picTempDir + fileName);
@@ -128,7 +140,7 @@ public class ArticleController {
 				}
 				try {
 					file.transferTo(dest);
-					msgMap.put("filename", "http://localhost:8080/upload/pic/" + fileName);
+					msgMap.put("filename", "http://"+localAddr +":8080/upload/pic/" + fileName);
 				} catch (IllegalStateException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -136,7 +148,7 @@ public class ArticleController {
 				}
 			} else {
 				msgMap.put("warning", "图片已经存在！");
-				msgMap.put("filename", "http://localhost:8080/upload/pic/" + fileName);
+				msgMap.put("filename", "http://"+localAddr +":8080/upload/pic/" + fileName);
 			}
 		} else {
 			msgMap.put("error", "上传图片名称含非法字符或非图片文件！");
@@ -173,16 +185,15 @@ public class ArticleController {
 	/**
 	 * 删除图片
 	 */
-	@RequestMapping(value = "/delArticlePic/{imgSrc}", method = RequestMethod.GET)
+	@RequestMapping(value = "/delArticlePic/", method = RequestMethod.POST)
 	@ResponseBody
-	public String delArticlePic(@PathVariable  String imgsrc) {
-//		try {
-//			// 对乱码处理
-//			imgsrc = URLDecoder.decode(imgsrc, "utf-8");
-//		} catch (UnsupportedEncodingException e1) {
-//			e1.printStackTrace();
-//		}
-		System.out.println(imgsrc);
+	public String delArticlePic(@RequestParam("imgSrc") String imgsrc) {
+		try {
+			// 对乱码处理
+			imgsrc = URLDecoder.decode(imgsrc, "utf-8");
+		} catch (UnsupportedEncodingException e1) {
+			e1.printStackTrace();
+		}
 		Map<String, String> msgMap = new HashMap<String, String>();
 		if (StringUtils.isBlank(imgsrc) || StringUtils.indexOf(imgsrc, "/") == -1) {
 			return "{\"msg\": \"图片格式：" + imgsrc + " 不合法！\"}";

@@ -1,5 +1,5 @@
 var mngPage = '/admin/cms/ArticleMng';
-// 上传图片文件保存到临时文件夹
+// 上传图片保存到临时文件夹
 function upArticle(file, header, token) {
 	var data = new FormData();
 	data.append('file', file);
@@ -35,9 +35,12 @@ function upArticle(file, header, token) {
 // 删除图片
 function removePic(imgsrc) {
 	$.ajax({
-		url : '/admin/cms/delArticlePic/'+imgsrc,
+		type : "POST",
+		url : '/admin/cms/delArticlePic/',
+		data : {
+			'imgSrc' : imgsrc
+		},
 		dataType : "json",
-		contentType : "application/json;charset=UTF-8",
 		beforeSend : function(xhr) {
 			xhr.setRequestHeader(header, token);
 		},

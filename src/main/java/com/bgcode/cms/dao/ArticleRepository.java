@@ -3,6 +3,9 @@ package com.bgcode.cms.dao;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +16,9 @@ import com.bgcode.cms.entity.Article;
 
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, Integer> {
-
+	
+	Page<Article> findAll(Specification<Article> spec, Pageable pageable);
+	
 	@Transactional
 	@Modifying(clearAutomatically = true)
 	@Query(value="INSERT INTO cms_article(title,auth,create_by,contents,create_date, allowcomments, statuse) VALUES (?1, ?2, ?3, ?4, ?5, 1, 2)",nativeQuery = true)

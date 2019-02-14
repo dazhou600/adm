@@ -21,13 +21,13 @@
 					<h4 class="modal-title text-center">按关键字搜索</h4>
 				</div>
 				<div class="modal-body">
-					<form class="form-horizontal">
+					<form id="searchEntry" class="form-horizontal">
 						<div class="box-body">
 							<div class="form-group">
 								<label for="inputEmail3" class="col-sm-2 control-label">名称</label>
 
 								<div class="col-sm-10">
-									<input type="text" class="form-control" id="title"
+									<input type="text" class="form-control" name="title"
 										placeholder="标题" />
 								</div>
 							</div>
@@ -35,7 +35,8 @@
 								<label for="inputPassword3" class="col-sm-2 control-label">关键字</label>
 
 								<div class="col-sm-10">
-									<input type="text" class="form-control" id="" placeholder="关键" />
+									<input type="text" class="form-control" name="auth"
+										placeholder="作者" />
 								</div>
 							</div>
 						</div>
@@ -44,7 +45,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-					<button type="button" class="btn btn-primary">设置</button>
+					<button type="button" id="seachclum" class="btn btn-primary" data-dismiss="modal">查询</button>
 				</div>
 			</div>
 		</div>
@@ -108,27 +109,58 @@
 	<script th:inline="javascript">
 	var header = [[${_csrf.headerName}]];
 	var token =[[${_csrf.token}]];
-	var table;
+	var atable;
 $(document).ready(function() {
-	 table = $('#listArtocle').DataTable( {
+	 atable = $('#listArtocle').DataTable( {
 		 "language": {
             "url": "/assets/Chinese.txt"
         },
         "scrollX":true,
+        "ordering": false,  
+       "searching": false,
     	"processing": true,
-       // "serverSide": true,
+    	"stateSave": true,
+       "serverSide": true,
         "ajax": {
             "url": "/admin/cms/listArticle",
             "type": "POST",
+            dataType : 'json',
+    		contentType : "application/json;charset=UTF-8",
+            data: function (oData) { 
+                var param = {}; 
+                param.draw = oData.draw; 
+                param.start = oData.start; 
+                param.length = oData.length; 
+                var formData = $("#searchEntry").serializeArray();//把form里面的数据序列化成数组 
+                formData.forEach(function (entry) {
+                	var v=entry.value;
+                if(v!==""){
+                	param[entry.name] = v;
+                }
+                }); 
+                return JSON.stringify(param);//自定义需要传递的参数。 
+                },
             beforeSend : function(xhr) {
                 xhr.setRequestHeader(header, token);
-	            }
+	            },
+	            dataFilter: function(result) {
+	            	var json = jQuery.parseJSON( result );   
+	            	//异常判断与处理
+                       	if (json.errors != null) {
+							alert(json.errors);
+						} 
+                       	json.recordsTotal = json.total;
+                        json.recordsFiltered = json.total;
+                        return JSON.stringify( json );
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert("查询失败");
+                }
         },
         'columnDefs': [{
            	 'targets': 1,
            	 data: 1,
            	 title: "标题",
-                'orderable': false ,
                 render: function (data, type, row, meta) {
                 return '<div style="width: 100px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" title="'+data+'">'+data+'</div>'
                 }
@@ -138,7 +170,6 @@ $(document).ready(function() {
          	 'targets': 5,
          	 data: 5,
          	 title: "内容",
-              'orderable': false ,
               render: function (data, type, row, meta) {
             	  return data;
               }
@@ -147,8 +178,6 @@ $(document).ready(function() {
        {
            'targets': -2,
       	 title: "编辑",
-           'searchable': false,
-           'orderable': false,
            'width': "36px",
            'render': function (data, type, row, meta){
                return '<button type="button" class="btn" onclick="window.location.href=\'/admin/cms/editArticle/'+row[0]+'\'"><i class="fa fa-pencil-square-o"></i></button>'
@@ -158,9 +187,7 @@ $(document).ready(function() {
        {
            'targets': -1,
       	 title: "删除",
-           'searchable': false,
            'width': "36px",
-           'orderable': false,
            'render': function (data, type, row, meta){
                 return '<button type="button" class="btn btn-danger"><i class="fa fa-trash-o"></i></button>'
                ;
@@ -168,16 +195,24 @@ $(document).ready(function() {
         }
         ]
         });
+	    //查询按钮
+     $("#seachclum").on("click", function () {
+        atable.ajax.reload();//查询后不需要保持分页状态，回首页
+     });
+     //刷新
+     $("#btn-re").on("click", function () {
+         atable.draw(false);//刷新保持分页状态
+     });
 });
 
 $('#listArtocle tbody').on( 'click', 'button.btn.btn-danger', function () {
-	var rowDada = table.row( $(this).parents('tr') ).data() ;
+	var rowDada = atable.row( $(this).parents('tr') ).data() ;
 	var flag = confirm("确认删除文章: " + rowDada[1] + " 吗？");
 	if (true == flag) {
 		deleteArticle(rowDada, header, token);
-	table
+	atable
         .row( $(this).parents('tr') )
-        .remove()
+        .remove()//有时候删除没有移除当前行
         .draw(false);
 	} else {
 		return false;
