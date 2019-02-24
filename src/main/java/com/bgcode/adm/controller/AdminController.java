@@ -69,7 +69,7 @@ public class AdminController {
 	public String registForm() {
 		return "login_reg";
 	}
-	@RequestMapping(value = "/ctgrmng", method = RequestMethod.GET)
+	//@RequestMapping(value = "/ctgrmng", method = RequestMethod.GET)
 	public String ctgrMng(HttpServletRequest request) {
 		 request.setAttribute("includePath", "/admin/business/cms/ctgrmng");
 		return "login_reg";

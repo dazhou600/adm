@@ -86,6 +86,7 @@
 									<th>id</th>
 									<th>title</th>
 									<th>作者</th>
+									<th>栏目</th>
 									<th>创建</th>
 									<th>createDate</th>
 									<th>contents</th>
@@ -116,7 +117,7 @@ $(document).ready(function() {
             "url": "/assets/Chinese.txt"
         },
         "scrollX":true,
-        "ordering": false,  
+        //"ordering": false,  
        "searching": false,
     	"processing": true,
     	"stateSave": true,
@@ -126,11 +127,14 @@ $(document).ready(function() {
             "type": "POST",
             dataType : 'json',
     		contentType : "application/json;charset=UTF-8",
-            data: function (oData) { 
-                var param = {}; 
+            data: function (oData) { //draw,columns,order,start,length,search
+            	var param = {}; 
                 param.draw = oData.draw; 
                 param.start = oData.start; 
-                param.length = oData.length; 
+                param.length = oData.length;
+                param.dir = oData.order[0].dir;
+                param.column = oData.order[0].column;
+                //alert(param.order[0].dir)
                 var formData = $("#searchEntry").serializeArray();//把form里面的数据序列化成数组 
                 formData.forEach(function (entry) {
                 	var v=entry.value;
@@ -169,7 +173,7 @@ $(document).ready(function() {
        {
          	 'targets': 5,
          	 data: 5,
-         	 title: "内容",
+         	 title: "创建时间",
               render: function (data, type, row, meta) {
             	  return data;
               }

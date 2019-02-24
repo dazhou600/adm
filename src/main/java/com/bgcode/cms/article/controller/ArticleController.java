@@ -83,7 +83,7 @@ public class ArticleController {
 			msgMap.put("errors", msg);
 			return ReturnMsgUtile.toJSONMsg(msgMap);
 		}
-		System.out.println("articlesSevice");
+		System.out.println("articlesSevice"+param.getDir());
 		Page<Article> articles =articlesSevice.findArticlePage(param);
 		long total = articles.getTotalElements();
 		String aa = "{\"draw\":"+param.getDraw()+",\"start\":"+param.getStart()+",\"length\":"+param.getLength()+",\"total\":"+total+",\"data\":[" + StringUtils.join(articles.getContent(), ",") + "]}";

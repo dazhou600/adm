@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,10 +26,14 @@ import com.bgcode.cms.entity.Article;
 import com.bgcode.common.PageParam;
 @Service
 public class ArticleSevice {
+	private static final String[] columnS = { "id", "title", "auth", "createBy", "createDate", "articleContents" };
+
 	@Autowired
 	private ArticleRepository repo;
 	
 	public Page<Article> findArticlePage(PageParam param) {
+		
+
         //规格定义
         Specification<Article> specification = new Specification<Article>() {
 
@@ -52,8 +58,16 @@ public class ArticleSevice {
                 return cb.and(predicates.toArray(new Predicate[0]));
             }
         };
+        int len=columnS.length-1;
+        Pageable pageable = new PageRequest(param.getStart()/param.getLength(),param.getLength(),param.getDir().equalsIgnoreCase("asc")?Direction.ASC:Direction.DESC,param.getColumn()>len?columnS[len]:columnS[param.getColumn()]); //页码：前端从1开始，jpa从0开始，做个转换
+        //排序
+       // List<Sort.Order> orders = new ArrayList<>();
+        //orders.add(new Sort.Order(Sort.Direction.DESC,"createDate"));
+       // orders.add(new Sort.Order(Sort.Direction.DESC,"auth"));
+       // orders.add(new Sort.Order(Sort.Direction.DESC,"articleContents"));
+       // orders.add(new Sort.Order(Sort.Direction.DESC,"createBy"));
         //分页信息
-        Pageable pageable = new PageRequest(param.getStart()/param.getLength(),param.getLength()); //页码：前端从1开始，jpa从0开始，做个转换
+       // Pageable pageable = new PageRequest(param.getStart()/param.getLength(),param.getLength(),new Sort(orders)); //页码：前端从1开始，jpa从0开始，做个转换
         //查询
         return this.repo.findAll(specification,pageable);
     }
@@ -62,12 +76,13 @@ public class ArticleSevice {
 	public int saveArticle(Article article){
 		UserInfo user = (UserInfo) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		article.setCreateBy(user.getUsername());
+		System.out.println("*****"+article.getCategoryId());
 		int count=0;
 		if (article.getId() == null) {
 			article.setCreateDate(new Date());
-			count = repo.creatArticle(article.getTitle(),article.getAuth(),article.getCreateBy(),article.getArticleContents(),article.getCreateDate());
+			count = repo.creatArticle(article.getTitle(),article.getAuth(),article.getCategoryId(),article.getCreateBy(),article.getArticleContents(),article.getCreateDate());
 		}else{
-			count = repo.upArticle(article.getTitle(),article.getAuth(),article.getCreateBy(),article.getCreateDate(),article.getArticleContents(),article.getId());
+			count = repo.upArticle(article.getTitle(),article.getAuth(),article.getCategoryId(),article.getCreateBy(),article.getArticleContents(),article.getId());
 		}
 		return count ;
 		

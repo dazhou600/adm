@@ -50,6 +50,16 @@ public class Article implements Serializable {
 		this.createDate = createDate;
 		this.articleContents=articleContents;
 	}
+	public Article(Integer id, String title,String auth,int categoryId, String createBy, Date createDate,String articleContents) {
+		super();
+		this.id = id;
+		this.title = title;
+		this.auth=auth;
+		this.createBy = createBy;
+		this.createDate = createDate;
+		this.categoryId=categoryId;
+		this.articleContents=articleContents;
+	}
 
 	public Integer getId() {
 		return id;
@@ -104,7 +114,7 @@ public class Article implements Serializable {
 		this.articleContents = articleContents;
 	}
 	public String toString(){
-		return "[\""+this.id+"\",\""+this.title+"\",\""+this.auth+"\",\""+this.createBy+"\",\""+this.createDate+"\",\""+HtmlUtils.htmlEscape(getArticleContents(), "UTF-8")+"\"]";
+		return "[\""+this.id+"\",\""+this.title+"\",\""+this.auth+"\",\""+this.categoryId+"\",\""+this.createBy+"\",\""+this.createDate+"\",\""+HtmlUtils.htmlEscape(getArticleContents(), "UTF-8")+"\"]";
 //		String contents = "无内容";
 //		if(this.getArticleContents()!=null){
 //		 contents = this.getArticleContents().indexOf("\"")!=-1?this.getArticleContents().replaceAll("\"", "\\\\\""):this.getArticleContents();

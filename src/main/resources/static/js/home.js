@@ -3,6 +3,8 @@ function getNavbarDOM(navbars){
 	var navs = JSON.parse(navbars);
 	console.log(navbars);
 	console.log("-------------");
+	
+	navs.shift();
 	console.log(navs);
 	var countnavs =navs.length;
 	var outstr='';

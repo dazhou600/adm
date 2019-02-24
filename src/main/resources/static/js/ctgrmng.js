@@ -79,7 +79,7 @@ var log, className = "dark";
 			apenStr += "<option>"+i+"</option>";
 		}
 
-		apenStr +="<option>末尾</option>";
+		apenStr +="<option selected='selected'>末尾</option>";
 		apenStr += "</select></b>";
 		var btn = $("#addBtn_"+treeNode.tId);
 		if (btn) btn.bind("click", function(){
@@ -163,3 +163,16 @@ var log, className = "dark";
 		}
 		return true;
 	};
+	//含特殊符号addArticle.html从迁移过来
+	function onClick(e, treeId, treeNode) {
+		var zTree = $.fn.zTree.getZTreeObj("ctgrtree"),
+		nodes = zTree.getSelectedNodes(),
+		v = "";
+		nodes.sort(function compare(a,b){return a.id-b.id;});
+		for (var i=0, l=nodes.length; i<l; i++) {
+			v += nodes[i].name + ",";
+		}
+		if (v.length > 0 ) v = v.substring(0, v.length-1);
+		var cityObj = $("#ctgrsel");
+		cityObj.attr("value", v);
+	}

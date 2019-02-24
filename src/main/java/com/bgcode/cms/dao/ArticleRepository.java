@@ -21,19 +21,19 @@ public interface ArticleRepository extends JpaRepository<Article, Integer> {
 	
 	@Transactional
 	@Modifying(clearAutomatically = true)
-	@Query(value="INSERT INTO cms_article(title,auth,create_by,contents,create_date, allowcomments, statuse) VALUES (?1, ?2, ?3, ?4, ?5, 1, 2)",nativeQuery = true)
-	public int creatArticle(String title,String auth,String user,String contents,Date create_date);
+	@Query(value="INSERT INTO cms_article(title,auth,category_id,create_by,contents,create_date, allowcomments, statuse) VALUES (?1, ?2, ?3, ?4, ?5,?6, 1, 2)",nativeQuery = true)
+	public int creatArticle(String title,String auth,int categoryId,String user,String contents,Date create_date);
 	
 	@Query(value="SELECT new Article(a.id,a.title,a.auth,a.createBy,a.createDate,a.articleContents) from Article a")
 	public List<Article> findAll();
 	
-	@Query(value="SELECT new Article(a.id,a.title,a.auth,a.createBy,a.createDate,a.articleContents) from Article a where a.id=?1")
+	@Query(value="SELECT new Article(a.id,a.title,a.auth,a.categoryId,a.createBy,a.createDate,a.articleContents) from Article a where a.id=?1")
 	public List<Article> findArticle(int aid);
 	
 	@Transactional
 	@Modifying(clearAutomatically = true)
-	@Query(value="UPDATE cms_article SET title=?1,auth=?2,create_by=?3,create_date=?4,contents=?5 WHERE aid=?6",nativeQuery = true)
-	public int upArticle(String title,String auth,String createby,Date createdate,String contents,int id);
+	@Query(value="UPDATE cms_article SET title=?1,auth=?2,category_id=?3,create_by=?4,contents=?5 WHERE aid=?6",nativeQuery = true)
+	public int upArticle(String title,String auth,int categoryId,String createby,String contents,int id);
 	
 }
 
