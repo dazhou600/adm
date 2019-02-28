@@ -1,9 +1,6 @@
 //主页导航
 function getNavbarDOM(navbars){
 	var navs = JSON.parse(navbars);
-	console.log(navbars);
-	console.log("-------------");
-	
 	navs.shift();
 	console.log(navs);
 	var countnavs =navs.length;
@@ -30,7 +27,6 @@ function getNavbarDOM(navbars){
 }
 //后面有子节点
 function les(navbar,outstr){
-	console.log("nav***"+outstr);
 	navbar.level>2?outstr +="<li class='dropdown-submenu'>"
     +"<a href='#'>"+navbar.rname+"<span class='caret'></span></a>"
     +"<ul class='dropdown-menu'>"

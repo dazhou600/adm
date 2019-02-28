@@ -65,7 +65,7 @@ public class ArticleController {
 	 * /admin/cms/ArticleMng 文章管理 获取文章列表
 	 */
 	@RequestMapping(value = { "/ArticleMng" }, method = RequestMethod.GET)
-	public String getArticleMngPage(HttpServletRequest request) {
+	public String articleMngPage(HttpServletRequest request) {
 		request.setAttribute("includePath", "/admin/business/cms/articlelist");
 		// request.setAttribute("includePath",
 		// "/admin/business/cms/ArticleMng");
@@ -94,7 +94,7 @@ public class ArticleController {
 	 * 获取增加文章界面
 	 */
 	@RequestMapping(value = { "/addArticle" }, method = RequestMethod.GET)
-	public String getAddArticlePage(HttpServletRequest request) {
+	public String addArticlePage(HttpServletRequest request) {
 		request.setAttribute("includePath", "/admin/business/cms/addArticle");
 		return baseTemplate;
 	}

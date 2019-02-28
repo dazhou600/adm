@@ -167,12 +167,6 @@ var log, className = "dark";
 	function onClick(e, treeId, treeNode) {
 		var zTree = $.fn.zTree.getZTreeObj("ctgrtree"),
 		nodes = zTree.getSelectedNodes(),
-		v = "";
-		nodes.sort(function compare(a,b){return a.id-b.id;});
-		for (var i=0, l=nodes.length; i<l; i++) {
-			v += nodes[i].name + ",";
-		}
-		if (v.length > 0 ) v = v.substring(0, v.length-1);
-		var cityObj = $("#ctgrsel");
-		cityObj.attr("value", v);
+		v = nodes[0].name;
+		$("#ctgrsel").attr("value", v);
 	}
